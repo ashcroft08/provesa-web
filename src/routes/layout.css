@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+
+@theme {
+    /* En Tailwind v4, usa variables CSS con prefijo -- */
+    --color-primary: #455dd9;
+    --color-secondary: #ffd100;
+    --color-accent: #e4002b;
+    --color-background: #ffffff;
+}
