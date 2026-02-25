@@ -2,6 +2,7 @@
 	import AdminSidebar from '$lib/components/admin/AdminSidebar.svelte';
 	import DashboardTab from '$lib/components/admin/DashboardTab.svelte';
 	import PersonalizacionTab from '$lib/components/admin/PersonalizacionTab.svelte';
+	import FooterTab from '$lib/components/admin/FooterTab.svelte';
 	import PlaceholderTab from '$lib/components/admin/PlaceholderTab.svelte';
 
 	let { data, form } = $props();
@@ -23,6 +24,7 @@
 	let navItems = [
 		{ name: 'Dashboard', icon: 'dashboard' },
 		{ name: 'Personalización', icon: 'palette' },
+		{ name: 'Footer', icon: 'web' },
 		{ name: 'Sugerencias', icon: 'chat_bubble_outline', badge: 4 },
 		{ name: 'Candidatos', icon: 'people_outline' },
 		{ name: 'Configuración', icon: 'settings' }
@@ -76,6 +78,12 @@
 				<DashboardTab />
 			{:else if activeTab === 'Personalización'}
 				<PersonalizacionTab bind:theme bind:isSaving formResult={form} />
+			{:else if activeTab === 'Footer'}
+				<FooterTab
+					footerInfo={data.footer?.info}
+					branches={data.footer?.branches || []}
+					formResult={form}
+				/>
 			{:else if activeTab === 'Sugerencias'}
 				<PlaceholderTab title="Sugerencias" icon="chat_bubble_outline" />
 			{:else if activeTab === 'Candidatos'}

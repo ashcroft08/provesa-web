@@ -1,4 +1,7 @@
 import { redirect, fail } from '@sveltejs/kit';
+import { db } from '$lib/server/db';
+import { footerInfo, footerBranches } from '$lib/server/db/schema';
+import { eq, asc } from 'drizzle-orm';
 import fs from 'fs';
 import path from 'path';
 
@@ -24,16 +27,29 @@ function getThemeColors() {
     }
 }
 
+/**
+ * Obtiene los datos del footer desde la BD
+ */
+async function getFooterData() {
+    const [info] = await db.select().from(footerInfo).limit(1);
+    const branches = await db.select().from(footerBranches).orderBy(asc(footerBranches.sortOrder));
+    return {
+        info: info || null,
+        branches
+    };
+}
+
 export const load = async (event) => {
-    // 1. Protección de ruta: Solo administradores logueados
     if (!event.locals.session) {
         throw redirect(302, '/login');
     }
 
-    // 2. Cargar los colores actuales para el editor
+    const footer = await getFooterData();
+
     return {
         user: event.locals.user,
-        theme: getThemeColors()
+        theme: getThemeColors(),
+        footer
     };
 };
 
@@ -53,7 +69,6 @@ export const actions = {
         try {
             let content = fs.readFileSync(CSS_PATH, 'utf-8');
 
-            // Reemplazamos los valores en el archivo usando Regex
             if (primary) content = content.replace(/(--color-primary:\s*).+?;/, `$1${primary};`);
             if (secondary) content = content.replace(/(--color-secondary:\s*).+?;/, `$1${secondary};`);
             if (accent) content = content.replace(/(--color-accent:\s*).+?;/, `$1${accent};`);
@@ -64,6 +79,82 @@ export const actions = {
         } catch (e) {
             console.error('Error escribiendo en layout.css:', e);
             return fail(500, { error: 'No se pudieron guardar los colores.' });
+        }
+    },
+
+    /**
+     * Actualiza la información general del footer (crear o actualizar)
+     */
+    updateFooter: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+
+        const formData = await request.formData();
+        const description = formData.get('description')?.toString() || '';
+        const address = formData.get('address')?.toString() || '';
+        const phone = formData.get('phone')?.toString() || '';
+        const mobile = formData.get('mobile')?.toString() || '';
+        const email = formData.get('email')?.toString() || '';
+
+        try {
+            const [existing] = await db.select().from(footerInfo).limit(1);
+
+            if (existing) {
+                await db.update(footerInfo)
+                    .set({ description, address, phone, mobile, email, updatedAt: new Date() })
+                    .where(eq(footerInfo.id, existing.id));
+            } else {
+                await db.insert(footerInfo).values({ description, address, phone, mobile, email });
+            }
+
+            return { footerSuccess: true };
+        } catch (e) {
+            console.error('Error guardando footer:', e);
+            return fail(500, { error: 'No se pudo guardar la información del footer.' });
+        }
+    },
+
+    /**
+     * Agrega una nueva sucursal
+     */
+    addBranch: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+
+        const formData = await request.formData();
+        const name = formData.get('branchName')?.toString();
+        const address = formData.get('branchAddress')?.toString() || '';
+
+        if (!name) return fail(400, { error: 'El nombre de la sucursal es requerido.' });
+
+        try {
+            // Obtener el mayor sortOrder para poner la nueva al final
+            const branches = await db.select().from(footerBranches).orderBy(asc(footerBranches.sortOrder));
+            const nextOrder = branches.length > 0 ? branches[branches.length - 1].sortOrder + 1 : 0;
+
+            await db.insert(footerBranches).values({ name, address, sortOrder: nextOrder });
+            return { branchAdded: true };
+        } catch (e) {
+            console.error('Error agregando sucursal:', e);
+            return fail(500, { error: 'No se pudo agregar la sucursal.' });
+        }
+    },
+
+    /**
+     * Elimina una sucursal por ID
+     */
+    deleteBranch: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+
+        const formData = await request.formData();
+        const id = parseInt(formData.get('branchId')?.toString() || '0');
+
+        if (!id) return fail(400, { error: 'ID de sucursal inválido.' });
+
+        try {
+            await db.delete(footerBranches).where(eq(footerBranches.id, id));
+            return { branchDeleted: true };
+        } catch (e) {
+            console.error('Error eliminando sucursal:', e);
+            return fail(500, { error: 'No se pudo eliminar la sucursal.' });
         }
     },
 

@@ -8,3 +8,4 @@ export const task = pgTable('task', {
 
 export * from './schemas/auth.schema';
 export * from './schemas/theme_config.schema.js';
+export * from './schemas/footer.schema.js';

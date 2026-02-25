@@ -1,7 +1,7 @@
 <script>
 	import { enhance } from '$app/forms';
 	import logo from '$lib/assets/images/provesa-logo.png';
-	import { ArrowLeft, User, Lock, LogIn } from 'lucide-svelte';
+	import { ArrowLeft, Mail, Lock, LogIn } from 'lucide-svelte';
 
 	let { form } = $props();
 	let email = $state('');
@@ -45,10 +45,10 @@
 			>
 				<div>
 					<label for="email" class="mb-1.5 ml-1 block text-sm font-semibold text-slate-700"
-						>Email</label
+						>Correo electrónico</label
 					>
 					<div class="group relative">
-						<User
+						<Mail
 							size={18}
 							class="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-primary"
 						/>

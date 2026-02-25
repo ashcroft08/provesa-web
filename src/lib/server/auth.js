@@ -9,6 +9,29 @@ export const auth = betterAuth({
 	baseURL: env.ORIGIN,
 	secret: env.BETTER_AUTH_SECRET,
 	database: drizzleAdapter(db, { provider: 'pg' }),
+
+	// Configuración de sesión: expira en 1 hora, sin auto-refresh
+	session: {
+		expiresIn: 60 * 60, // 1 hora (en segundos)
+		updateAge: 0, // No refrescar la sesión automáticamente
+	},
+
+	// Limitar intentos de login: máx 5 intentos cada 60 segundos por IP
+	rateLimit: {
+		window: 60, // ventana de tiempo en segundos
+		max: 100, // máximo global de requests por ventana
+		customRules: {
+			'/sign-in/email': {
+				window: 60, // 60 segundos
+				max: 5, // máximo 5 intentos de login
+			},
+			'/forget-password': {
+				window: 60,
+				max: 3, // máximo 3 solicitudes de recuperación
+			},
+		},
+	},
+
 	emailAndPassword: {
 		enabled: true,
 		async sendResetPassword({ user, url }) {

@@ -72,15 +72,18 @@
 							>Tu correo electrónico</label
 						>
 						<div class="relative">
-							<Mail size={18} class="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400" />
+							<Mail
+								size={18}
+								class="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-primary"
+							/>
 							<input
 								type="email"
 								name="email"
 								id="email"
 								bind:value={email}
-								placeholder="ejemplo@provesa.com"
+								placeholder="admin@provesa.com"
 								required
-								class="input-focus w-full rounded-2xl border-slate-200 bg-white/50 py-3.5 pr-4 pl-12 outline-none focus:border-primary focus:ring-primary/20"
+								class="w-full rounded-xl border border-slate-200 bg-white/60 py-3 pr-4 pl-11 text-sm transition-all outline-none placeholder:text-slate-400 hover:border-slate-300 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
 							/>
 						</div>
 					</div>
