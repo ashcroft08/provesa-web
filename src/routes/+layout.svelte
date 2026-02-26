@@ -14,10 +14,11 @@
 	// 1. Hay un error (estamos en la página de error)
 	// 2. La ruta está en nuestra lista de excluidos
 	let showChrome = $derived(!page.error && !excludedRoutes.includes(page.url.pathname));
+	let isHome = $derived(page.url.pathname === '/');
 </script>
 
 {#if showChrome}
-	<Navbar />
+	<Navbar transparent={isHome} />
 {/if}
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>

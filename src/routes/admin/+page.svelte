@@ -3,6 +3,8 @@
 	import DashboardTab from '$lib/components/admin/DashboardTab.svelte';
 	import PersonalizacionTab from '$lib/components/admin/PersonalizacionTab.svelte';
 	import FooterTab from '$lib/components/admin/FooterTab.svelte';
+	import PaginasLegalesTab from '$lib/components/admin/PaginasLegalesTab.svelte';
+	import SlidersTab from '$lib/components/admin/SlidersTab.svelte';
 	import PlaceholderTab from '$lib/components/admin/PlaceholderTab.svelte';
 
 	let { data, form } = $props();
@@ -24,7 +26,9 @@
 	let navItems = [
 		{ name: 'Dashboard', icon: 'dashboard' },
 		{ name: 'Personalización', icon: 'palette' },
+		{ name: 'Sliders', icon: 'slideshow' },
 		{ name: 'Footer', icon: 'web' },
+		{ name: 'Páginas Legales', icon: 'policy' },
 		{ name: 'Sugerencias', icon: 'chat_bubble_outline', badge: 4 },
 		{ name: 'Candidatos', icon: 'people_outline' },
 		{ name: 'Configuración', icon: 'settings' }
@@ -78,12 +82,16 @@
 				<DashboardTab />
 			{:else if activeTab === 'Personalización'}
 				<PersonalizacionTab bind:theme bind:isSaving formResult={form} />
+			{:else if activeTab === 'Sliders'}
+				<SlidersTab slides={data.slides || []} formResult={form} />
 			{:else if activeTab === 'Footer'}
 				<FooterTab
 					footerInfo={data.footer?.info}
 					branches={data.footer?.branches || []}
 					formResult={form}
 				/>
+			{:else if activeTab === 'Páginas Legales'}
+				<PaginasLegalesTab legal={data.legal} formResult={form} />
 			{:else if activeTab === 'Sugerencias'}
 				<PlaceholderTab title="Sugerencias" icon="chat_bubble_outline" />
 			{:else if activeTab === 'Candidatos'}

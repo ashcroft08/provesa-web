@@ -3,8 +3,13 @@
 	import logo from '$lib/assets/images/provesa-logo.png';
 	import { Menu, X } from 'lucide-svelte';
 
+	let { transparent = false } = $props();
+
 	let scrolled = $state(false); // Estado reactivo para el scroll
 	let menuOpen = $state(false); // Estado reactivo para el menu
+
+	// El navbar es transparente solo si la prop lo permite Y no se ha hecho scroll
+	let isTransparent = $derived(transparent && !scrolled);
 
 	function handleScroll() {
 		scrolled = window.scrollY > 50;
@@ -15,8 +20,8 @@
 
 <nav
 	class="glass-nav fixed top-0 z-50 w-full border-b border-slate-100 transition-all duration-300"
-	class:nav-scrolled={scrolled}
-	class:nav-transparent={!scrolled}
+	class:nav-scrolled={!isTransparent}
+	class:nav-transparent={isTransparent}
 >
 	<div class="mx-auto flex h-24 max-w-7xl items-center justify-between px-6">
 		<a href="/" class="group flex items-center gap-2">

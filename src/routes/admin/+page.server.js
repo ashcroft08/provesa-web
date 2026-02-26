@@ -1,6 +1,6 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { footerInfo, footerBranches } from '$lib/server/db/schema';
+import { footerInfo, footerBranches, legalPages, heroSlides } from '$lib/server/db/schema';
 import { eq, asc } from 'drizzle-orm';
 import fs from 'fs';
 import path from 'path';
@@ -39,17 +39,38 @@ async function getFooterData() {
     };
 }
 
+/**
+ * Obtiene las páginas legales desde la BD
+ */
+async function getLegalPages() {
+    const pages = await db.select().from(legalPages);
+    const privacidad = pages.find(p => p.slug === 'privacidad') || null;
+    const terminos = pages.find(p => p.slug === 'terminos') || null;
+    return { privacidad, terminos };
+}
+
+/**
+ * Obtiene los slides del hero desde la BD
+ */
+async function getHeroSlides() {
+    return await db.select().from(heroSlides).orderBy(asc(heroSlides.sortOrder));
+}
+
 export const load = async (event) => {
     if (!event.locals.session) {
         throw redirect(302, '/login');
     }
 
     const footer = await getFooterData();
+    const legal = await getLegalPages();
+    const slides = await getHeroSlides();
 
     return {
         user: event.locals.user,
         theme: getThemeColors(),
-        footer
+        footer,
+        legal,
+        slides
     };
 };
 
@@ -155,6 +176,116 @@ export const actions = {
         } catch (e) {
             console.error('Error eliminando sucursal:', e);
             return fail(500, { error: 'No se pudo eliminar la sucursal.' });
+        }
+    },
+
+    /**
+     * Actualiza una página legal (crear o actualizar por slug)
+     */
+    updateLegalPage: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+
+        const formData = await request.formData();
+        const slug = formData.get('slug')?.toString();
+        const title = formData.get('title')?.toString() || '';
+        const content = formData.get('content')?.toString() || '';
+
+        if (!slug) return fail(400, { error: 'Slug es requerido.' });
+
+        try {
+            const [existing] = await db.select().from(legalPages).where(eq(legalPages.slug, slug));
+
+            if (existing) {
+                await db.update(legalPages)
+                    .set({ title, content, updatedAt: new Date() })
+                    .where(eq(legalPages.id, existing.id));
+            } else {
+                await db.insert(legalPages).values({ slug, title, content });
+            }
+
+            return { legalSuccess: true, savedSlug: slug };
+        } catch (e) {
+            console.error('Error guardando página legal:', e);
+            return fail(500, { error: 'No se pudo guardar la página.' });
+        }
+    },
+
+    /**
+     * Agrega un nuevo slide al hero
+     */
+    addSlide: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+
+        const formData = await request.formData();
+        const imageUrl = formData.get('imageUrl')?.toString() || '';
+        const title = formData.get('title')?.toString() || '';
+        const highlight = formData.get('highlight')?.toString() || '';
+        const description = formData.get('description')?.toString() || '';
+        const badge = formData.get('badge')?.toString() || '';
+        const align = formData.get('align')?.toString() || 'left';
+        const highlightColor = formData.get('highlightColor')?.toString() || 'text-accent-yellow';
+
+        if (!imageUrl) return fail(400, { error: 'La URL de la imagen es requerida.' });
+
+        try {
+            const existing = await db.select().from(heroSlides).orderBy(asc(heroSlides.sortOrder));
+            const nextOrder = existing.length > 0 ? existing[existing.length - 1].sortOrder + 1 : 0;
+
+            await db.insert(heroSlides).values({
+                imageUrl, title, highlight, description, badge, align, highlightColor, sortOrder: nextOrder
+            });
+            return { slideAdded: true };
+        } catch (e) {
+            console.error('Error agregando slide:', e);
+            return fail(500, { error: 'No se pudo agregar el slide.' });
+        }
+    },
+
+    /**
+     * Actualiza un slide existente
+     */
+    updateSlide: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+
+        const formData = await request.formData();
+        const id = parseInt(formData.get('slideId')?.toString() || '0');
+        if (!id) return fail(400, { error: 'ID de slide inválido.' });
+
+        const imageUrl = formData.get('imageUrl')?.toString() || '';
+        const title = formData.get('title')?.toString() || '';
+        const highlight = formData.get('highlight')?.toString() || '';
+        const description = formData.get('description')?.toString() || '';
+        const badge = formData.get('badge')?.toString() || '';
+        const align = formData.get('align')?.toString() || 'left';
+        const highlightColor = formData.get('highlightColor')?.toString() || 'text-accent-yellow';
+
+        try {
+            await db.update(heroSlides)
+                .set({ imageUrl, title, highlight, description, badge, align, highlightColor })
+                .where(eq(heroSlides.id, id));
+            return { slideUpdated: true };
+        } catch (e) {
+            console.error('Error actualizando slide:', e);
+            return fail(500, { error: 'No se pudo actualizar el slide.' });
+        }
+    },
+
+    /**
+     * Elimina un slide por ID
+     */
+    deleteSlide: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+
+        const formData = await request.formData();
+        const id = parseInt(formData.get('slideId')?.toString() || '0');
+        if (!id) return fail(400, { error: 'ID de slide inválido.' });
+
+        try {
+            await db.delete(heroSlides).where(eq(heroSlides.id, id));
+            return { slideDeleted: true };
+        } catch (e) {
+            console.error('Error eliminando slide:', e);
+            return fail(500, { error: 'No se pudo eliminar el slide.' });
         }
     },
 

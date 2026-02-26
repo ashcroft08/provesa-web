@@ -5,10 +5,15 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from '../schema.js';
 
-const DATABASE_URL = process.env.DATABASE_URL;
+const { DATABASE_URL, BETTER_AUTH_SECRET, ADMIN_NAME, ADMIN_EMAIL, ADMIN_PASSWORD } = process.env;
 
-if (!DATABASE_URL) {
-    console.error('❌ Error: DATABASE_URL no está definida en el archivo .env');
+if (!DATABASE_URL || !BETTER_AUTH_SECRET) {
+    console.error('❌ Error: DATABASE_URL o BETTER_AUTH_SECRET no están definidas en el archivo .env');
+    process.exit(1);
+}
+
+if (!ADMIN_NAME || !ADMIN_EMAIL || !ADMIN_PASSWORD) {
+    console.error('❌ Error: ADMIN_NAME, ADMIN_EMAIL o ADMIN_PASSWORD no están definidas en el archivo .env');
     process.exit(1);
 }
 
@@ -18,16 +23,16 @@ const db = drizzle(client, { schema });
 const auth = betterAuth({
     database: drizzleAdapter(db, { provider: 'pg' }),
     emailAndPassword: { enabled: true },
-    secret: process.env.BETTER_AUTH_SECRET || 'fallback_secret'
+    secret: BETTER_AUTH_SECRET
 });
 
 async function seed() {
     try {
         await auth.api.signUpEmail({
             body: {
-                name: 'Administrador',
-                email: 'admin@provesa.com',
-                password: 'Admin_*_2026'
+                name: ADMIN_NAME,
+                email: ADMIN_EMAIL,
+                password: ADMIN_PASSWORD
             }
         });
         console.log('✅ Usuario admin creado con éxito');

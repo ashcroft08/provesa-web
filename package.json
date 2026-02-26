@@ -54,6 +54,7 @@
 		"vitest-browser-svelte": "^2.0.2"
 	},
 	"dependencies": {
+		"cloudinary": "^2.9.0",
 		"lucide-svelte": "^0.575.0",
 		"nodemailer": "^8.0.1",
 		"postgres": "^3.4.8"
