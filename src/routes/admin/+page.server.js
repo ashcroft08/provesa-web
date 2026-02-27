@@ -1,7 +1,7 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { footerInfo, footerBranches, legalPages, heroSlides, products, nosotrosConfig } from '$lib/server/db/schema';
-import { eq, asc } from 'drizzle-orm';
+import { footerInfo, footerBranches, legalPages, heroSlides, products, nosotrosConfig, sugerencias, sugerenciasConfig } from '$lib/server/db/schema';
+import { eq, asc, desc } from 'drizzle-orm';
 import fs from 'fs';
 import path from 'path';
 
@@ -71,6 +71,21 @@ async function getNosotrosConfig() {
     return config || null;
 }
 
+/**
+ * Obtiene todas las sugerencias recibidas (orden descendente por fecha)
+ */
+async function getSugerencias() {
+    return await db.select().from(sugerencias).orderBy(desc(sugerencias.createdAt));
+}
+
+/**
+ * Obtiene la configuración de sugerencias (opciones del dropdown)
+ */
+async function getSugerenciasConfig() {
+    const [config] = await db.select().from(sugerenciasConfig).limit(1);
+    return config || null;
+}
+
 export const load = async (event) => {
     if (!event.locals.session) {
         throw redirect(302, '/login');
@@ -89,7 +104,9 @@ export const load = async (event) => {
         legal,
         slides,
         products: productsList,
-        nosotros
+        nosotros,
+        sugerencias: await getSugerencias(),
+        sugerenciasConfig: await getSugerenciasConfig()
     };
 };
 
@@ -432,6 +449,66 @@ export const actions = {
         } catch (e) {
             console.error('Error actualizando nosotros config:', e);
             return fail(500, { error: 'No se pudo guardar la configuración.' });
+        }
+    },
+
+    /**
+     * Marca una sugerencia como leída
+     */
+    markSugerenciaRead: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+        const formData = await request.formData();
+        const id = formData.get('id')?.toString();
+        if (!id) return fail(400);
+
+        try {
+            await db.update(sugerencias).set({ leido: true }).where(eq(sugerencias.id, id));
+            return { sugSuccess: true };
+        } catch (e) {
+            console.error('Error marcando sugerencia como leída:', e);
+            return fail(500);
+        }
+    },
+
+    /**
+     * Elimina una sugerencia
+     */
+    deleteSugerencia: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+        const formData = await request.formData();
+        const id = formData.get('id')?.toString();
+        if (!id) return fail(400);
+
+        try {
+            await db.delete(sugerencias).where(eq(sugerencias.id, id));
+            return { sugDeleted: true };
+        } catch (e) {
+            console.error('Error eliminando sugerencia:', e);
+            return fail(500);
+        }
+    },
+
+    /**
+     * Actualiza las opciones del dropdown de sugerencias (upsert singleton)
+     */
+    updateSugerenciasConfig: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+        const formData = await request.formData();
+        const opcionesRaw = formData.get('opciones')?.toString() || '[]';
+
+        try {
+            const [existing] = await db.select().from(sugerenciasConfig).limit(1);
+            const opciones = JSON.parse(opcionesRaw);
+
+            if (existing) {
+                await db.update(sugerenciasConfig).set({ opciones }).where(eq(sugerenciasConfig.id, existing.id));
+            } else {
+                await db.insert(sugerenciasConfig).values({ opciones });
+            }
+            return { configSuccess: true };
+        } catch (e) {
+            console.error('Error actualizando opciones de sugerencias:', e);
+            return fail(500, { error: 'No se pudieron guardar las opciones.' });
         }
     },
 

@@ -7,6 +7,7 @@
 	import SlidersTab from '$lib/components/admin/SlidersTab.svelte';
 	import ProductosTab from '$lib/components/admin/ProductosTab.svelte';
 	import NosotrosTab from '$lib/components/admin/NosotrosTab.svelte';
+	import SugerenciasTab from '$lib/components/admin/SugerenciasTab.svelte';
 	import PlaceholderTab from '$lib/components/admin/PlaceholderTab.svelte';
 
 	let { data, form } = $props();
@@ -25,7 +26,10 @@
 	// Estado para el guardado
 	let isSaving = $state(false);
 
-	let navItems = [
+	// Calcular conteo de sugerencias no leídas
+	let unreadSugerencias = $derived(data.sugerencias?.filter((s) => !s.leido).length || 0);
+
+	let navItems = $derived([
 		{ name: 'Dashboard', icon: 'dashboard' },
 		{ name: 'Personalización', icon: 'palette' },
 		{ name: 'Sliders', icon: 'slideshow' },
@@ -33,10 +37,10 @@
 		{ name: 'Nosotros', icon: 'groups' },
 		{ name: 'Footer', icon: 'web' },
 		{ name: 'Páginas Legales', icon: 'policy' },
-		{ name: 'Sugerencias', icon: 'chat_bubble_outline', badge: 4 },
+		{ name: 'Sugerencias', icon: 'chat_bubble_outline', badge: unreadSugerencias },
 		{ name: 'Candidatos', icon: 'people_outline' },
 		{ name: 'Configuración', icon: 'settings' }
-	];
+	]);
 </script>
 
 <svelte:head>
@@ -101,7 +105,7 @@
 			{:else if activeTab === 'Páginas Legales'}
 				<PaginasLegalesTab legal={data.legal} formResult={form} />
 			{:else if activeTab === 'Sugerencias'}
-				<PlaceholderTab title="Sugerencias" icon="chat_bubble_outline" />
+				<SugerenciasTab sugerencias={data.sugerencias || []} config={data.sugerenciasConfig} />
 			{:else if activeTab === 'Candidatos'}
 				<PlaceholderTab title="Candidatos" icon="people_outline" />
 			{:else if activeTab === 'Configuración'}

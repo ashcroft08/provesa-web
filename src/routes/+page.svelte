@@ -10,4 +10,4 @@
 <HeroSlider slides={data.slides} />
 <ProductSection dbProducts={data.products} />
 <NosotrosTeaser config={data.nosotros} />
-<SugerenciasForm />
+<SugerenciasForm tipos={data.sugOptions} />

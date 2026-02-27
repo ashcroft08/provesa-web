@@ -1,24 +1,17 @@
 <script>
+	import { enhance } from '$app/forms';
 	import { MessageSquareText, Send, User, ChevronDown } from 'lucide-svelte';
 
-	let tipo = $state('Sugerencia de Servicio');
+	let {
+		tipos = ['Sugerencia de Servicio', 'Nuevo Producto Requerido', 'Reclamo', 'Felicitación']
+	} = $props();
+
+	let tipo = $state(tipos[0]);
 	let nombre = $state('');
 	let mensaje = $state('');
 	let enviado = $state(false);
+	let isSubmitting = $state(false);
 	let dropdownOpen = $state(false);
-
-	const tipos = ['Sugerencia de Servicio', 'Nuevo Producto Requerido', 'Reclamo', 'Felicitación'];
-
-	function enviar() {
-		if (!mensaje.trim()) return;
-		enviado = true;
-		setTimeout(() => {
-			enviado = false;
-			tipo = 'Sugerencia de Servicio';
-			nombre = '';
-			mensaje = '';
-		}, 3000);
-	}
 
 	function selectTipo(/** @type {string} */ t) {
 		tipo = t;
@@ -72,12 +65,26 @@
 			</div>
 		{:else}
 			<form
-				onsubmit={(e) => {
-					e.preventDefault();
-					enviar();
+				method="POST"
+				action="?/enviarSugerencia"
+				use:enhance={() => {
+					isSubmitting = true;
+					return async ({ update, result }) => {
+						isSubmitting = false;
+						if (result.type === 'success') {
+							enviado = true;
+							setTimeout(() => {
+								enviado = false;
+								nombre = '';
+								mensaje = '';
+							}, 3000);
+						}
+						await update({ reset: false });
+					};
 				}}
 				class="rounded-3xl border border-slate-100 bg-[#F8FAFC] p-8 shadow-sm transition-all hover:shadow-md md:p-10"
 			>
+				<input type="hidden" name="tipo" value={tipo} />
 				<div class="mb-6 grid gap-6 md:grid-cols-2">
 					<!-- Tipo -->
 					<div class="relative">
@@ -138,6 +145,7 @@
 						<input
 							type="text"
 							id="sugNombre"
+							name="nombre"
 							bind:value={nombre}
 							placeholder="Anónimo"
 							class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
@@ -153,6 +161,7 @@
 					</label>
 					<textarea
 						id="sugMsg"
+						name="mensaje"
 						bind:value={mensaje}
 						rows="4"
 						placeholder="Escriba aquí sus comentarios o sugerencias..."
