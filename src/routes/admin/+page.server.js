@@ -1,6 +1,6 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { footerInfo, footerBranches, legalPages, heroSlides } from '$lib/server/db/schema';
+import { footerInfo, footerBranches, legalPages, heroSlides, products } from '$lib/server/db/schema';
 import { eq, asc } from 'drizzle-orm';
 import fs from 'fs';
 import path from 'path';
@@ -56,6 +56,13 @@ async function getHeroSlides() {
     return await db.select().from(heroSlides).orderBy(asc(heroSlides.sortOrder));
 }
 
+/**
+ * Obtiene los productos de la sección principal
+ */
+async function getProducts() {
+    return await db.select().from(products).orderBy(asc(products.sortOrder));
+}
+
 export const load = async (event) => {
     if (!event.locals.session) {
         throw redirect(302, '/login');
@@ -64,13 +71,15 @@ export const load = async (event) => {
     const footer = await getFooterData();
     const legal = await getLegalPages();
     const slides = await getHeroSlides();
+    const productsList = await getProducts();
 
     return {
         user: event.locals.user,
         theme: getThemeColors(),
         footer,
         legal,
-        slides
+        slides,
+        products: productsList
     };
 };
 
@@ -286,6 +295,96 @@ export const actions = {
         } catch (e) {
             console.error('Error eliminando slide:', e);
             return fail(500, { error: 'No se pudo eliminar el slide.' });
+        }
+    },
+
+    /**
+     * Agrega un nuevo producto
+     */
+    addProduct: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+
+        const formData = await request.formData();
+        const name = formData.get('name')?.toString() || '';
+        const description = formData.get('description')?.toString() || '';
+        const align = formData.get('align')?.toString() || 'left';
+        const accentColor = formData.get('accentColor')?.toString() || 'primary';
+        const displayType = formData.get('displayType')?.toString() || 'features';
+        const imagesRaw = formData.get('images')?.toString() || '[]';
+        const featuresRaw = formData.get('features')?.toString() || '[]';
+        const categoriesRaw = formData.get('categories')?.toString() || '[]';
+
+        if (!name) return fail(400, { error: 'El nombre del producto es requerido.' });
+
+        try {
+            const existing = await db.select().from(products).orderBy(asc(products.sortOrder));
+            const nextOrder = existing.length > 0 ? existing[existing.length - 1].sortOrder + 1 : 0;
+
+            await db.insert(products).values({
+                name, description, align, accentColor, displayType,
+                images: JSON.parse(imagesRaw),
+                features: JSON.parse(featuresRaw),
+                categories: JSON.parse(categoriesRaw),
+                sortOrder: nextOrder
+            });
+            return { productAdded: true };
+        } catch (e) {
+            console.error('Error agregando producto:', e);
+            return fail(500, { error: 'No se pudo agregar el producto.' });
+        }
+    },
+
+    /**
+     * Actualiza un producto existente
+     */
+    updateProduct: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+
+        const formData = await request.formData();
+        const id = parseInt(formData.get('productId')?.toString() || '0');
+        if (!id) return fail(400, { error: 'ID de producto inválido.' });
+
+        const name = formData.get('name')?.toString() || '';
+        const description = formData.get('description')?.toString() || '';
+        const align = formData.get('align')?.toString() || 'left';
+        const accentColor = formData.get('accentColor')?.toString() || 'primary';
+        const displayType = formData.get('displayType')?.toString() || 'features';
+        const imagesRaw = formData.get('images')?.toString() || '[]';
+        const featuresRaw = formData.get('features')?.toString() || '[]';
+        const categoriesRaw = formData.get('categories')?.toString() || '[]';
+
+        try {
+            await db.update(products)
+                .set({
+                    name, description, align, accentColor, displayType,
+                    images: JSON.parse(imagesRaw),
+                    features: JSON.parse(featuresRaw),
+                    categories: JSON.parse(categoriesRaw)
+                })
+                .where(eq(products.id, id));
+            return { productUpdated: true };
+        } catch (e) {
+            console.error('Error actualizando producto:', e);
+            return fail(500, { error: 'No se pudo actualizar el producto.' });
+        }
+    },
+
+    /**
+     * Elimina un producto
+     */
+    deleteProduct: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+
+        const formData = await request.formData();
+        const id = parseInt(formData.get('productId')?.toString() || '0');
+        if (!id) return fail(400, { error: 'ID de producto inválido.' });
+
+        try {
+            await db.delete(products).where(eq(products.id, id));
+            return { productDeleted: true };
+        } catch (e) {
+            console.error('Error eliminando producto:', e);
+            return fail(500, { error: 'No se pudo eliminar el producto.' });
         }
     },
 
