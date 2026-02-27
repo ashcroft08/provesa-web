@@ -1,6 +1,6 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { footerInfo, footerBranches, legalPages, heroSlides, products } from '$lib/server/db/schema';
+import { footerInfo, footerBranches, legalPages, heroSlides, products, nosotrosConfig } from '$lib/server/db/schema';
 import { eq, asc } from 'drizzle-orm';
 import fs from 'fs';
 import path from 'path';
@@ -63,6 +63,14 @@ async function getProducts() {
     return await db.select().from(products).orderBy(asc(products.sortOrder));
 }
 
+/**
+ * Obtiene la configuración de la sección Nosotros (singleton)
+ */
+async function getNosotrosConfig() {
+    const [config] = await db.select().from(nosotrosConfig).limit(1);
+    return config || null;
+}
+
 export const load = async (event) => {
     if (!event.locals.session) {
         throw redirect(302, '/login');
@@ -72,6 +80,7 @@ export const load = async (event) => {
     const legal = await getLegalPages();
     const slides = await getHeroSlides();
     const productsList = await getProducts();
+    const nosotros = await getNosotrosConfig();
 
     return {
         user: event.locals.user,
@@ -79,7 +88,8 @@ export const load = async (event) => {
         footer,
         legal,
         slides,
-        products: productsList
+        products: productsList,
+        nosotros
     };
 };
 
@@ -385,6 +395,43 @@ export const actions = {
         } catch (e) {
             console.error('Error eliminando producto:', e);
             return fail(500, { error: 'No se pudo eliminar el producto.' });
+        }
+    },
+
+    /**
+     * Actualiza la configuración de Nosotros Teaser (upsert singleton)
+     */
+    updateNosotros: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+
+        const formData = await request.formData();
+        const badge = formData.get('badge')?.toString() || 'Nuestra Esencia';
+        const title = formData.get('title')?.toString() || '';
+        const titleHighlight = formData.get('titleHighlight')?.toString() || '';
+        const description = formData.get('description')?.toString() || '';
+        const ctaText = formData.get('ctaText')?.toString() || 'Conocer Más';
+        const ctaLink = formData.get('ctaLink')?.toString() || '/nosotros';
+        const colorsRaw = formData.get('colors')?.toString() || '{}';
+        const statsRaw = formData.get('stats')?.toString() || '[]';
+
+        try {
+            const [existing] = await db.select().from(nosotrosConfig).limit(1);
+            const data = {
+                badge, title, titleHighlight, description, ctaText, ctaLink,
+                colors: JSON.parse(colorsRaw),
+                stats: JSON.parse(statsRaw),
+                updatedAt: new Date()
+            };
+
+            if (existing) {
+                await db.update(nosotrosConfig).set(data).where(eq(nosotrosConfig.id, existing.id));
+            } else {
+                await db.insert(nosotrosConfig).values(data);
+            }
+            return { nosotrosUpdated: true };
+        } catch (e) {
+            console.error('Error actualizando nosotros config:', e);
+            return fail(500, { error: 'No se pudo guardar la configuración.' });
         }
     },
 

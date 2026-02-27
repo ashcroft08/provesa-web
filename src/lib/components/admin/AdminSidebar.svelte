@@ -17,22 +17,24 @@
 </script>
 
 <aside class="glass-sidebar fixed inset-y-0 left-0 z-50 hidden w-72 lg:block">
-	<div class="flex h-full flex-col p-8">
-		<div class="mb-10 flex items-center gap-3">
-			<img src={logo} alt="Provesa" class="mx-auto mb-6 h-12 w-auto object-contain" />
+	<div class="flex h-full flex-col">
+		<!-- Logo -->
+		<div class="flex-shrink-0 px-8 pt-6 pb-4">
+			<img src={logo} alt="Provesa" class="mx-auto h-12 w-auto object-contain" />
 		</div>
 
-		<nav class="flex-grow space-y-2">
+		<!-- Nav items (scrollable) -->
+		<nav class="sidebar-scroll flex-1 space-y-1 overflow-y-auto px-6 py-2">
 			{#each navItems as item}
 				<button
 					onclick={() => (activeTab = item.name)}
-					class="flex w-full items-center gap-4 rounded-2xl px-4 py-3 text-sm font-bold transition-all
+					class="flex w-full items-center gap-4 rounded-2xl px-4 py-2.5 text-sm font-bold transition-all
 					{activeTab === item.name ? 'active-nav' : 'text-slate-500 hover:bg-slate-50 hover:text-primary'}"
 				>
-					<span class="material-icons">{item.icon}</span>
+					<span class="material-icons text-[20px]">{item.icon}</span>
 					{item.name}
 					{#if item.badge}
-						<span class="bg-accent-red ml-auto rounded-full px-2 py-1 text-[10px] text-white">
+						<span class="bg-accent-red ml-auto rounded-full px-2 py-0.5 text-[10px] text-white">
 							{item.badge}
 						</span>
 					{/if}
@@ -40,18 +42,19 @@
 			{/each}
 		</nav>
 
-		<div class="mt-auto border-t border-slate-100 pt-8">
-			<div class="flex items-center gap-4 rounded-2xl bg-slate-50 p-4">
+		<!-- User profile (always visible at bottom) -->
+		<div class="flex-shrink-0 border-t border-slate-100 px-6 py-4">
+			<div class="flex items-center gap-3 rounded-2xl bg-slate-50 p-3">
 				<div
-					class="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-bold text-white uppercase"
+					class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary font-bold text-white uppercase"
 				>
 					{initials}
 				</div>
-				<div class="overflow-hidden">
+				<div class="min-w-0 flex-1">
 					<p class="truncate text-xs font-bold">{user?.name || 'Administrador'}</p>
 					<p class="truncate text-[10px] text-slate-400">Panel de Control</p>
 				</div>
-				<form action="?/logout" method="POST" use:enhance class="ml-auto flex items-center">
+				<form action="?/logout" method="POST" use:enhance class="flex-shrink-0">
 					<button
 						title="Cerrar Sesión"
 						class="hover:text-accent-red text-slate-400 transition-colors"
@@ -75,5 +78,14 @@
 		background-color: var(--color-primary);
 		color: white !important;
 		box-shadow: 0 10px 15px -3px rgba(0, 82, 165, 0.3);
+	}
+
+	/* Hide scrollbar but keep scroll functionality */
+	.sidebar-scroll {
+		scrollbar-width: none; /* Firefox */
+		-ms-overflow-style: none; /* IE/Edge */
+	}
+	.sidebar-scroll::-webkit-scrollbar {
+		display: none; /* Chrome/Safari */
 	}
 </style>

@@ -6,6 +6,7 @@
 	import PaginasLegalesTab from '$lib/components/admin/PaginasLegalesTab.svelte';
 	import SlidersTab from '$lib/components/admin/SlidersTab.svelte';
 	import ProductosTab from '$lib/components/admin/ProductosTab.svelte';
+	import NosotrosTab from '$lib/components/admin/NosotrosTab.svelte';
 	import PlaceholderTab from '$lib/components/admin/PlaceholderTab.svelte';
 
 	let { data, form } = $props();
@@ -29,6 +30,7 @@
 		{ name: 'Personalización', icon: 'palette' },
 		{ name: 'Sliders', icon: 'slideshow' },
 		{ name: 'Productos', icon: 'inventory_2' },
+		{ name: 'Nosotros', icon: 'groups' },
 		{ name: 'Footer', icon: 'web' },
 		{ name: 'Páginas Legales', icon: 'policy' },
 		{ name: 'Sugerencias', icon: 'chat_bubble_outline', badge: 4 },
@@ -88,6 +90,8 @@
 				<SlidersTab slides={data.slides || []} formResult={form} />
 			{:else if activeTab === 'Productos'}
 				<ProductosTab products={data.products || []} formResult={form} />
+			{:else if activeTab === 'Nosotros'}
+				<NosotrosTab nosotros={data.nosotros} formResult={form} />
 			{:else if activeTab === 'Footer'}
 				<FooterTab
 					footerInfo={data.footer?.info}

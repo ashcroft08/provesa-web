@@ -12,3 +12,4 @@ export * from './schemas/footer.schema.js';
 export * from './schemas/legal_pages.schema.js';
 export * from './schemas/hero_slides.schema.js';
 export * from './schemas/products.schema.js';
+export * from './schemas/nosotros_config.schema.js';
