@@ -1,6 +1,6 @@
 <script>
 	import { enhance } from '$app/forms';
-	import { fade, slide } from 'svelte/transition';
+	import { fade, slide, fly } from 'svelte/transition';
 	import {
 		MessageSquareText,
 		Trash2,
@@ -11,7 +11,11 @@
 		X,
 		Save,
 		AlertCircle,
-		MailOpen
+		MailOpen,
+		Search,
+		Filter,
+		Inbox,
+		CheckCheck
 	} from 'lucide-svelte';
 
 	let { sugerencias = [], config = { opciones: [] } } = $props();
@@ -27,6 +31,30 @@
 	let newOption = $state('');
 	let isSubmitting = $state(false);
 
+	// Estados de filtrado
+	let searchQuery = $state('');
+	let statusFilter = $state('all'); // all, new, read
+	let typeFilter = $state('all');
+
+	// Sugerencias filtradas
+	let filteredSugerencias = $derived(
+		sugerencias.filter((s) => {
+			const matchesSearch =
+				!searchQuery ||
+				(s.nombre || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+				(s.mensaje || '').toLowerCase().includes(searchQuery.toLowerCase());
+
+			const matchesStatus =
+				statusFilter === 'all' ||
+				(statusFilter === 'new' && !s.leido) ||
+				(statusFilter === 'read' && s.leido);
+
+			const matchesType = typeFilter === 'all' || s.tipo === typeFilter;
+
+			return matchesSearch && matchesStatus && matchesType;
+		})
+	);
+
 	// Sincronizar si cambia el prop
 	$effect(() => {
 		if (config?.opciones) {
@@ -41,11 +69,11 @@
 		}
 	}
 
-	function removeOption(index) {
+	function removeOption(/** @type {number} */ index) {
 		options = options.filter((_, i) => i !== index);
 	}
 
-	function formatDate(date) {
+	function formatDate(/** @type {any} */ date) {
 		if (!date) return '';
 		return new Date(date).toLocaleString('es-ES', {
 			day: '2-digit',
@@ -141,21 +169,90 @@
 	<div
 		class="rounded-[40px] border border-slate-100 bg-white p-10 shadow-sm transition-all hover:shadow-md"
 	>
-		<div class="mb-8 flex items-center justify-between">
-			<div>
-				<h3 class="text-2xl font-black text-slate-900">Mensajes Recibidos</h3>
-				<p class="mt-1 text-sm text-slate-500">
-					Revisa las sugerencias y comentarios enviados por los clientes.
-				</p>
+		<div class="mb-10">
+			<div class="mb-8 flex items-center justify-between">
+				<div>
+					<h3 class="text-2xl font-black text-slate-900">Mensajes Recibidos</h3>
+					<p class="mt-1 text-sm text-slate-500">
+						Administra y revisa las sugerencias enviadas por tus usuarios.
+					</p>
+				</div>
+				<div
+					class="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"
+				>
+					<Inbox size={24} />
+				</div>
 			</div>
-			<div
-				class="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 text-slate-400"
-			>
-				<MessageSquareText size={24} />
+
+			<!-- Filtros y Búsqueda -->
+			<div class="grid gap-4 md:grid-cols-3">
+				<div class="relative">
+					<span class="absolute top-1/2 left-3 -translate-y-1/2 text-slate-400">
+						<Search size={18} />
+					</span>
+					<input
+						type="text"
+						bind:value={searchQuery}
+						placeholder="Buscar en mensajes..."
+						class="w-full rounded-2xl border-slate-100 bg-slate-50 py-3 pr-4 pl-10 text-sm focus:bg-white focus:ring-primary/20"
+					/>
+				</div>
+
+				<div class="flex items-center gap-2">
+					<button
+						onclick={() => (statusFilter = 'all')}
+						class="rounded-xl px-4 py-2 text-xs font-bold transition-all
+						{statusFilter === 'all'
+							? 'bg-slate-900 text-white shadow-md'
+							: 'bg-slate-100 text-slate-500 hover:bg-slate-200'}"
+					>
+						Todos
+					</button>
+					<button
+						onclick={() => (statusFilter = 'new')}
+						class="flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition-all
+						{statusFilter === 'new'
+							? 'bg-primary text-white shadow-md'
+							: 'bg-slate-100 text-slate-500 hover:bg-slate-200'}"
+					>
+						Nuevos
+						{#if sugerencias.filter((s) => !s.leido).length > 0}
+							<span
+								class="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-white/20 px-1 text-[10px]"
+							>
+								{sugerencias.filter((s) => !s.leido).length}
+							</span>
+						{/if}
+					</button>
+					<button
+						onclick={() => (statusFilter = 'read')}
+						class="rounded-xl px-4 py-2 text-xs font-bold transition-all
+						{statusFilter === 'read'
+							? 'bg-green-600 text-white shadow-md'
+							: 'bg-slate-100 text-slate-500 hover:bg-slate-200'}"
+					>
+						Leídos
+					</button>
+				</div>
+
+				<div class="relative">
+					<span class="absolute top-1/2 left-3 -translate-y-1/2 text-slate-400">
+						<Filter size={16} />
+					</span>
+					<select
+						bind:value={typeFilter}
+						class="w-full appearance-none rounded-2xl border-slate-100 bg-slate-50 py-3 pr-10 pl-10 text-sm focus:bg-white focus:ring-primary/20"
+					>
+						<option value="all">Todos los tipos</option>
+						{#each options as opt}
+							<option value={opt}>{opt}</option>
+						{/each}
+					</select>
+				</div>
 			</div>
 		</div>
 
-		{#if sugerencias.length === 0}
+		{#if filteredSugerencias.length === 0}
 			<div
 				class="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-100 py-20 text-center"
 			>
@@ -164,17 +261,18 @@
 				>
 					<MailOpen size={32} />
 				</div>
-				<h4 class="text-lg font-bold text-slate-900">No hay mensajes aún</h4>
+				<h4 class="text-lg font-bold text-slate-900">No hay coincidencias</h4>
 				<p class="mt-1 max-w-xs text-sm text-slate-400">
-					Cuando un cliente envíe una sugerencia desde la web, aparecerá aquí.
+					Prueba a ajustar los filtros o comprueba si hay nuevos mensajes.
 				</p>
 			</div>
 		{:else}
 			<div class="space-y-4">
-				{#each sugerencias as sug}
+				{#each filteredSugerencias as sug (sug.id)}
 					<div
+						animate:slide={{ duration: 300 }}
 						class="group relative overflow-hidden rounded-3xl border border-slate-100 p-6 transition-all hover:border-primary/20 hover:bg-primary/[0.01] {sug.leido
-							? 'bg-white'
+							? 'bg-white opacity-80'
 							: 'border-primary/10 bg-primary/[0.02]'}"
 					>
 						<!-- Estado Leído indicator -->
@@ -186,25 +284,32 @@
 							<div class="flex-1 space-y-3">
 								<div class="flex flex-wrap items-center gap-3">
 									<span
-										class="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black tracking-wider text-slate-500 uppercase"
+										class="rounded-full px-3 py-1 text-[10px] font-black tracking-wider uppercase
+										{sug.leido ? 'bg-slate-100 text-slate-500' : 'bg-primary/10 text-primary'}"
 									>
 										{sug.tipo}
 									</span>
-									<div class="flex items-center gap-1.5 text-xs font-bold text-slate-400">
+									<div class="flex items-center gap-1.5 text-xs font-medium text-slate-400">
 										<Clock size={12} />
 										{formatDate(sug.createdAt)}
 									</div>
 									{#if !sug.leido}
 										<span
-											class="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-black text-primary"
+											class="flex animate-pulse items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-black text-primary"
 										>
 											NUEVO
+										</span>
+									{:else}
+										<span class="flex items-center gap-1 text-[10px] font-bold text-green-500">
+											<CheckCheck size={12} /> Leído
 										</span>
 									{/if}
 								</div>
 
 								<div class="flex items-center gap-2 text-sm font-bold text-slate-900">
-									<User size={14} class="text-slate-400" />
+									<div class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100">
+										<User size={12} class="text-slate-500" />
+									</div>
 									{sug.nombre || 'Anónimo'}
 								</div>
 
@@ -215,14 +320,24 @@
 
 							<div class="flex shrink-0 items-center gap-2 pt-2 md:pt-0">
 								{#if !sug.leido}
-									<form method="POST" action="?/markSugerenciaRead" use:enhance>
+									<form
+										method="POST"
+										action="?/markSugerenciaRead"
+										use:enhance={() => {
+											// Optimistic UI could be here if we were managing state locally,
+											// but we rely on SvelteKit's refresh.
+											return async ({ update }) => {
+												await update();
+											};
+										}}
+									>
 										<input type="hidden" name="id" value={sug.id} />
 										<button
 											type="submit"
-											class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 shadow-sm transition-all hover:border-green-200 hover:bg-green-50 hover:text-green-600"
+											class="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-400 shadow-sm transition-all hover:border-green-300 hover:bg-green-50 hover:text-green-600 active:scale-95"
 											title="Marcar como leído"
 										>
-											<CheckCircle2 size={18} />
+											<CheckCircle2 size={20} />
 										</button>
 									</form>
 								{/if}
@@ -243,10 +358,10 @@
 										type="submit"
 										onclick={(e) =>
 											!confirm('¿Estás seguro de eliminar esta sugerencia?') && e.preventDefault()}
-										class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 shadow-sm transition-all hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+										class="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-400 shadow-sm transition-all hover:border-red-300 hover:bg-red-50 hover:text-red-600 active:scale-95"
 										title="Eliminar"
 									>
-										<Trash2 size={18} />
+										<Trash2 size={20} />
 									</button>
 								</form>
 							</div>
