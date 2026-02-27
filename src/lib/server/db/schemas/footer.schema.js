@@ -11,6 +11,10 @@ export const footerInfo = pgTable('footer_info', {
     phone: text('phone').default(''),
     mobile: text('mobile').default(''),
     email: text('email').default(''),
+    facebookUrl: text('facebook_url').default(''),
+    instagramUrl: text('instagram_url').default(''),
+    tiktokUrl: text('tiktok_url').default(''),
+    whatsappUrl: text('whatsapp_url').default(''),
     updatedAt: timestamp('updated_at').defaultNow()
 });
 

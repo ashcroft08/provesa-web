@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { heroSlides, products, nosotrosConfig, sugerencias, sugerenciasConfig } from '$lib/server/db/schema';
+import { heroSlides, products, nosotrosConfig, sugerencias, sugerenciasConfig, footerInfo } from '$lib/server/db/schema';
 import { asc } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 
@@ -8,12 +8,14 @@ export const load = async () => {
     const productsList = await db.select().from(products).orderBy(asc(products.sortOrder));
     const [nosotros] = await db.select().from(nosotrosConfig).limit(1);
     const [sugConfig] = await db.select().from(sugerenciasConfig).limit(1);
+    const [footer] = await db.select().from(footerInfo).limit(1);
 
     return {
         slides,
         products: productsList,
         nosotros: nosotros || null,
-        sugOptions: sugConfig?.opciones || ['Sugerencia de Servicio', 'Nuevo Producto Requerido', 'Reclamo', 'Felicitación']
+        sugOptions: sugConfig?.opciones || ['Sugerencia de Servicio', 'Nuevo Producto Requerido', 'Reclamo', 'Felicitación'],
+        footer: footer || null
     };
 };
 

@@ -151,16 +151,27 @@ export const actions = {
         const phone = formData.get('phone')?.toString() || '';
         const mobile = formData.get('mobile')?.toString() || '';
         const email = formData.get('email')?.toString() || '';
+        const facebookUrl = formData.get('facebookUrl')?.toString() || '';
+        const instagramUrl = formData.get('instagramUrl')?.toString() || '';
+        const tiktokUrl = formData.get('tiktokUrl')?.toString() || '';
+        const whatsappUrl = formData.get('whatsappUrl')?.toString() || '';
 
         try {
             const [existing] = await db.select().from(footerInfo).limit(1);
 
             if (existing) {
                 await db.update(footerInfo)
-                    .set({ description, address, phone, mobile, email, updatedAt: new Date() })
+                    .set({
+                        description, address, phone, mobile, email,
+                        facebookUrl, instagramUrl, tiktokUrl, whatsappUrl,
+                        updatedAt: new Date()
+                    })
                     .where(eq(footerInfo.id, existing.id));
             } else {
-                await db.insert(footerInfo).values({ description, address, phone, mobile, email });
+                await db.insert(footerInfo).values({
+                    description, address, phone, mobile, email,
+                    facebookUrl, instagramUrl, tiktokUrl, whatsappUrl
+                });
             }
 
             return { footerSuccess: true };

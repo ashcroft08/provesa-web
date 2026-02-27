@@ -37,17 +37,17 @@
 			class="hidden items-center gap-10 text-sm font-medium tracking-wide text-slate-600 md:flex"
 		>
 			<a
-				href="#inicio"
+				href="/#inicio"
 				class="relative transition-colors after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:content-[''] hover:text-primary hover:after:w-full"
 				>Inicio</a
 			>
 			<a
-				href="#productos"
+				href="/#productos"
 				class="relative transition-colors after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:content-[''] hover:text-primary hover:after:w-full"
 				>Productos</a
 			>
 			<a
-				href="/nosotros"
+				href="/#nosotros-teaser"
 				class="relative transition-colors after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:content-[''] hover:text-primary hover:after:w-full"
 				>Nosotros</a
 			>
@@ -87,17 +87,17 @@
 
 		<a
 			onclick={() => (menuOpen = false)}
-			href="/"
+			href="/#inicio"
 			class="text-2xl font-bold text-slate-800 hover:text-primary">Inicio</a
 		>
 		<a
 			onclick={() => (menuOpen = false)}
-			href="#productos"
+			href="/#productos"
 			class="text-2xl font-bold text-slate-800 hover:text-primary">Productos</a
 		>
 		<a
 			onclick={() => (menuOpen = false)}
-			href="/nosotros"
+			href="/#nosotros-teaser"
 			class="text-2xl font-bold text-slate-800 hover:text-primary">Nosotros</a
 		>
 		<a

@@ -111,6 +111,100 @@
 				</div>
 			</div>
 
+			<!-- Redes Sociales -->
+			<div class="mt-8 border-t border-slate-100 pt-8">
+				<h4 class="mb-6 flex items-center gap-2 text-base font-black text-slate-900">
+					<span class="material-icons text-primary">share</span>
+					Redes Sociales
+				</h4>
+				<div class="grid gap-6 md:grid-cols-2">
+					<div>
+						<label
+							for="facebookUrl"
+							class="mb-2 block flex cursor-pointer items-center gap-2 text-sm font-bold text-slate-700"
+						>
+							Facebook
+						</label>
+						<div class="relative">
+							<span class="material-icons absolute top-1/2 left-4 -translate-y-1/2 text-slate-400"
+								>facebook</span
+							>
+							<input
+								type="url"
+								name="facebookUrl"
+								id="facebookUrl"
+								value={footerInfo?.facebookUrl || ''}
+								placeholder="https://facebook.com/su-empresa"
+								class="w-full rounded-2xl border-slate-100 bg-[#F8FAFC] p-4 pl-12 text-sm transition-all focus:bg-white focus:ring-primary/20"
+							/>
+						</div>
+					</div>
+					<div>
+						<label
+							for="instagramUrl"
+							class="mb-2 block flex cursor-pointer items-center gap-2 text-sm font-bold text-slate-700"
+						>
+							Instagram
+						</label>
+						<div class="relative">
+							<span class="material-icons absolute top-1/2 left-4 -translate-y-1/2 text-slate-400"
+								>photo_camera</span
+							>
+							<input
+								type="url"
+								name="instagramUrl"
+								id="instagramUrl"
+								value={footerInfo?.instagramUrl || ''}
+								placeholder="https://instagram.com/su-empresa"
+								class="w-full rounded-2xl border-slate-100 bg-[#F8FAFC] p-4 pl-12 text-sm transition-all focus:bg-white focus:ring-primary/20"
+							/>
+						</div>
+					</div>
+					<div>
+						<label
+							for="tiktokUrl"
+							class="mb-2 block flex cursor-pointer items-center gap-2 text-sm font-bold text-slate-700"
+						>
+							TikTok
+						</label>
+						<div class="relative">
+							<span class="material-icons absolute top-1/2 left-4 -translate-y-1/2 text-slate-400"
+								>music_note</span
+							>
+							<input
+								type="url"
+								name="tiktokUrl"
+								id="tiktokUrl"
+								value={footerInfo?.tiktokUrl || ''}
+								placeholder="https://tiktok.com/@su-empresa"
+								class="w-full rounded-2xl border-slate-100 bg-[#F8FAFC] p-4 pl-12 text-sm transition-all focus:bg-white focus:ring-primary/20"
+							/>
+						</div>
+					</div>
+					<div>
+						<label
+							for="whatsappUrl"
+							class="mb-2 block flex cursor-pointer items-center gap-2 text-sm font-bold text-slate-700"
+						>
+							WhatsApp (Número o Link)
+						</label>
+						<div class="relative">
+							<span class="material-icons absolute top-1/2 left-4 -translate-y-1/2 text-slate-400"
+								>whatsapp</span
+							>
+							<input
+								type="text"
+								name="whatsappUrl"
+								id="whatsappUrl"
+								value={footerInfo?.whatsappUrl || ''}
+								placeholder="Ej: 0992171280 o https://wa.me/..."
+								class="w-full rounded-2xl border-slate-100 bg-[#F8FAFC] p-4 pl-12 text-sm transition-all focus:bg-white focus:ring-primary/20"
+							/>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<div class="flex items-center justify-end gap-4 pt-4">
 				{#if formResult?.footerSuccess}
 					<p

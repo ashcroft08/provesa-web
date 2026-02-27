@@ -25,12 +25,15 @@ export const actions = {
                 body: {
                     email,
                     password
-                },
-                asResponse: true
+                }
             });
         } catch (error) {
+            console.error('[Login Error]:', error);
             const { translateError } = await import('$lib/utils/auth-errors');
-            return fail(400, { error: translateError(error) });
+            return fail(400, {
+                email,
+                error: translateError(error)
+            });
         }
 
         throw redirect(303, '/admin');

@@ -7,6 +7,18 @@
 	let email = $state('');
 	let password = $state('');
 	let loading = $state(false);
+	let visibleError = $state(null);
+
+	// Sincronizar error del formulario con el estado local y ocultarlo después de 5 segundos
+	$effect(() => {
+		if (form?.error) {
+			visibleError = form.error;
+			const timer = setTimeout(() => {
+				visibleError = null;
+			}, 5000);
+			return () => clearTimeout(timer);
+		}
+	});
 </script>
 
 <svelte:head>
@@ -43,6 +55,15 @@
 				}}
 				class="space-y-5"
 			>
+				{#if visibleError}
+					<div
+						class="animate-in fade-in slide-in-from-top-2 rounded-xl border border-accent/20 bg-accent/5 p-4 text-center ring-1 ring-accent/10 duration-300"
+					>
+						<p class="text-sm font-bold text-accent">Error de Acceso</p>
+						<p class="mt-0.5 text-xs font-medium text-accent/80">{visibleError}</p>
+					</div>
+				{/if}
+
 				<div>
 					<label for="email" class="mb-1.5 ml-1 block text-sm font-semibold text-slate-700"
 						>Correo electrónico</label
@@ -84,39 +105,6 @@
 						/>
 					</div>
 				</div>
-
-				{#if form?.error}
-					<div
-						class="rounded-lg border border-accent/20 bg-accent/5 p-3 text-center text-sm font-medium text-accent"
-					>
-						{form.error}
-					</div>
-				{/if}
-
-				<div class="flex items-center justify-between px-1">
-					<label class="group flex cursor-pointer items-center gap-2">
-						<input
-							type="checkbox"
-							class="h-4 w-4 cursor-pointer rounded border-slate-300 text-primary transition-all focus:ring-primary/20"
-						/>
-						<span
-							class="text-sm font-medium text-slate-500 transition-colors group-hover:text-slate-700"
-							>Recordarme</span
-						>
-					</label>
-					<a
-						href="/recuperar"
-						class="text-sm font-semibold text-primary transition-colors hover:text-blue-700 hover:underline hover:underline-offset-4"
-						>¿Olvidó su contraseña?</a
-					>
-				</div>
-
-				{#if form?.error}
-					<div class="rounded-xl border border-accent/20 bg-accent/5 p-4 text-center">
-						<p class="text-sm font-bold text-accent">Error de Acceso</p>
-						<p class="mt-0.5 text-xs text-accent/80">{form.error}</p>
-					</div>
-				{/if}
 
 				<button
 					type="submit"
