@@ -16,4 +16,6 @@ export * from './schemas/nosotros_config.schema.js';
 export * from './schemas/nosotros_page.schema.js';
 export * from './schemas/sugerencias.schema.js';
 export * from './schemas/sugerencias_config.schema.js';
+export * from './schemas/postulaciones.schema.js';
+export * from './schemas/empleo_sucursales.schema.js';
 

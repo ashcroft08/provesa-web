@@ -1,6 +1,6 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { footerInfo, footerBranches, legalPages, heroSlides, products, nosotrosConfig, nosotrosPage, sugerencias, sugerenciasConfig } from '$lib/server/db/schema';
+import { footerInfo, footerBranches, legalPages, heroSlides, products, nosotrosConfig, nosotrosPage, sugerencias, sugerenciasConfig, postulaciones, empleoSucursales } from '$lib/server/db/schema';
 import { eq, asc, desc } from 'drizzle-orm';
 import fs from 'fs';
 import path from 'path';
@@ -94,6 +94,20 @@ async function getSugerenciasConfig() {
     return config || null;
 }
 
+/**
+ * Obtiene todas las postulaciones (orden descendente por fecha)
+ */
+async function getPostulaciones() {
+    return await db.select().from(postulaciones).orderBy(desc(postulaciones.createdAt));
+}
+
+/**
+ * Obtiene todas las sucursales de empleo
+ */
+async function getEmpleoSucursales() {
+    return await db.select().from(empleoSucursales).orderBy(asc(empleoSucursales.nombre));
+}
+
 export const load = async (event) => {
     if (!event.locals.session) {
         throw redirect(302, '/login');
@@ -116,7 +130,9 @@ export const load = async (event) => {
         nosotros,
         nosotrosPageData,
         sugerencias: await getSugerencias(),
-        sugerenciasConfig: await getSugerenciasConfig()
+        sugerenciasConfig: await getSugerenciasConfig(),
+        postulaciones: await getPostulaciones(),
+        empleoSucursales: await getEmpleoSucursales()
     };
 };
 
@@ -588,5 +604,74 @@ export const actions = {
             });
         }
         throw redirect(302, '/login');
+    },
+
+    /**
+     * Elimina una postulación por ID
+     */
+    deletePostulacion: async ({ request, locals }) => {
+        if (!locals.session) throw redirect(302, '/login');
+        const formData = await request.formData();
+        const id = formData.get('id');
+        if (!id) return fail(400, { error: 'ID requerido' });
+        try {
+            await db.delete(postulaciones).where(eq(postulaciones.id, String(id)));
+            return { postulacionDeleted: true };
+        } catch (e) {
+            console.error('Error eliminando postulación:', e);
+            return fail(500, { error: 'Error al eliminar' });
+        }
+    },
+
+    /**
+     * Agrega una nueva sucursal de empleo
+     */
+    addEmpleoSucursal: async ({ request, locals }) => {
+        if (!locals.session) throw redirect(302, '/login');
+        const formData = await request.formData();
+        const nombre = formData.get('nombre')?.toString().trim();
+        if (!nombre) return fail(400, { error: 'Nombre requerido' });
+        try {
+            await db.insert(empleoSucursales).values({ nombre });
+            return { sucursalAdded: true };
+        } catch (e) {
+            console.error('Error agregando sucursal:', e);
+            return fail(500, { error: 'Error al agregar sucursal' });
+        }
+    },
+
+    /**
+     * Activa/desactiva una sucursal de empleo
+     */
+    toggleEmpleoSucursal: async ({ request, locals }) => {
+        if (!locals.session) throw redirect(302, '/login');
+        const formData = await request.formData();
+        const id = Number(formData.get('id'));
+        const activa = formData.get('activa') === 'true';
+        if (!id) return fail(400, { error: 'ID requerido' });
+        try {
+            await db.update(empleoSucursales).set({ activa }).where(eq(empleoSucursales.id, id));
+            return { sucursalToggled: true };
+        } catch (e) {
+            console.error('Error actualizando sucursal:', e);
+            return fail(500, { error: 'Error al actualizar' });
+        }
+    },
+
+    /**
+     * Elimina una sucursal de empleo
+     */
+    deleteEmpleoSucursal: async ({ request, locals }) => {
+        if (!locals.session) throw redirect(302, '/login');
+        const formData = await request.formData();
+        const id = Number(formData.get('id'));
+        if (!id) return fail(400, { error: 'ID requerido' });
+        try {
+            await db.delete(empleoSucursales).where(eq(empleoSucursales.id, id));
+            return { sucursalDeleted: true };
+        } catch (e) {
+            console.error('Error eliminando sucursal:', e);
+            return fail(500, { error: 'Error al eliminar' });
+        }
     }
 };

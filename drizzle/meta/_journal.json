@@ -15,6 +15,20 @@
       "when": 1772827300812,
       "tag": "0001_volatile_scream",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772831505389,
+      "tag": "0002_skinny_mantis",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1772832746098,
+      "tag": "0003_loving_blizzard",
+      "breakpoints": true
     }
   ]
 }
