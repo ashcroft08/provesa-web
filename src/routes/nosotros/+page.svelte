@@ -1,4 +1,5 @@
 <script>
+	import { Target, Eye, BookOpen } from 'lucide-svelte';
 	let { data } = $props();
 
 	// Defaults que coinciden con lo que están en el schema
@@ -73,26 +74,36 @@
 </svelte:head>
 
 <!-- HERO SECTION -->
-<header class="relative overflow-hidden bg-primary pt-32 pb-20">
+<header class="relative overflow-hidden bg-primary pt-36 pb-24">
 	<div
 		class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"
 	></div>
 	<div class="bg-accent-yellow/20 absolute -top-20 -right-20 h-96 w-96 rounded-full blur-3xl"></div>
+	<div
+		class="bg-accent-yellow/10 absolute -bottom-10 -left-10 h-64 w-64 rounded-full blur-2xl"
+	></div>
 
 	<div class="relative z-10 mx-auto max-w-7xl px-6 text-center text-white">
 		<span
-			class="text-accent-yellow mb-6 inline-block rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold tracking-widest uppercase backdrop-blur-sm"
-			>{heroBadge}</span
+			class="text-accent-yellow mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold tracking-widest uppercase backdrop-blur-sm"
+			><BookOpen size={14} />{heroBadge}</span
 		>
-		<h1 class="mb-6 text-5xl font-extrabold md:text-6xl">{heroTitle}</h1>
-		<p class="mx-auto max-w-2xl text-xl leading-relaxed text-blue-100">
+		<h1 class="mb-6 text-4xl font-extrabold md:text-6xl">{heroTitle}</h1>
+		<p class="mx-auto max-w-2xl text-lg leading-relaxed text-blue-100 md:text-xl">
 			{heroDescription}
 		</p>
+	</div>
+
+	<!-- Wave decoration -->
+	<div class="absolute bottom-0 left-0 w-full">
+		<svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+			<path d="M0 60V30C240 0 480 0 720 30C960 60 1200 60 1440 30V60H0Z" fill="white" />
+		</svg>
 	</div>
 </header>
 
 <!-- HISTORIA -->
-<section class="bg-white py-24">
+<section class="-mt-1 bg-white py-24">
 	<div class="mx-auto max-w-7xl px-6">
 		<div class="grid items-center gap-16 md:grid-cols-2">
 			<div class="relative">
@@ -104,6 +115,7 @@
 				/>
 			</div>
 			<div>
+				<div class="bg-accent-yellow mb-4 h-1 w-12 rounded-full"></div>
 				<h2 class="mb-6 text-3xl font-extrabold text-slate-900 md:text-4xl">
 					{historyTitle}
 				</h2>
@@ -118,16 +130,23 @@
 </section>
 
 <!-- MISION Y VISION -->
-<section class="relative bg-white py-24">
+<section class="bg-soft-gray relative py-24">
 	<div class="mx-auto max-w-7xl px-6">
 		<div class="grid items-center gap-12 md:grid-cols-2">
 			<div class="order-2 md:order-1">
 				<div class="space-y-12">
 					<!-- Mision -->
-					<div class="relative border-l-4 border-primary pl-8">
-						<h3 class="mb-4 text-2xl font-black tracking-tight text-slate-900 uppercase">
-							{missionTitle}
-						</h3>
+					<div class="border-accent-red relative border-l-4 pl-8">
+						<div class="mb-4 flex items-center gap-3">
+							<div
+								class="bg-accent-red/10 text-accent-red flex h-9 w-9 items-center justify-center rounded-lg"
+							>
+								<Target size={18} />
+							</div>
+							<h3 class="text-2xl font-black tracking-tight text-slate-900 uppercase">
+								{missionTitle}
+							</h3>
+						</div>
 						<p class="text-lg leading-relaxed text-slate-600">
 							{missionText}
 						</p>
@@ -135,9 +154,16 @@
 
 					<!-- Vision -->
 					<div class="border-accent-yellow relative border-l-4 pl-8">
-						<h3 class="mb-4 text-2xl font-black tracking-tight text-slate-900 uppercase">
-							{visionTitle}
-						</h3>
+						<div class="mb-4 flex items-center gap-3">
+							<div
+								class="bg-accent-yellow/15 text-accent-yellow flex h-9 w-9 items-center justify-center rounded-lg"
+							>
+								<Eye size={18} />
+							</div>
+							<h3 class="text-2xl font-black tracking-tight text-slate-900 uppercase">
+								{visionTitle}
+							</h3>
+						</div>
 						<p class="text-lg leading-relaxed text-slate-600">
 							{visionText}
 						</p>
