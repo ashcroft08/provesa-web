@@ -1,6 +1,6 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { footerInfo, footerBranches, legalPages, heroSlides, products, nosotrosConfig, sugerencias, sugerenciasConfig } from '$lib/server/db/schema';
+import { footerInfo, footerBranches, legalPages, heroSlides, products, nosotrosConfig, nosotrosPage, sugerencias, sugerenciasConfig } from '$lib/server/db/schema';
 import { eq, asc, desc } from 'drizzle-orm';
 import fs from 'fs';
 import path from 'path';
@@ -72,6 +72,14 @@ async function getNosotrosConfig() {
 }
 
 /**
+ * Obtiene el contenido de la página /nosotros (singleton)
+ */
+async function getNosotrosPage() {
+    const [page] = await db.select().from(nosotrosPage).limit(1);
+    return page || null;
+}
+
+/**
  * Obtiene todas las sugerencias recibidas (orden descendente por fecha)
  */
 async function getSugerencias() {
@@ -96,6 +104,7 @@ export const load = async (event) => {
     const slides = await getHeroSlides();
     const productsList = await getProducts();
     const nosotros = await getNosotrosConfig();
+    const nosotrosPageData = await getNosotrosPage();
 
     return {
         user: event.locals.user,
@@ -105,6 +114,7 @@ export const load = async (event) => {
         slides,
         products: productsList,
         nosotros,
+        nosotrosPageData,
         sugerencias: await getSugerencias(),
         sugerenciasConfig: await getSugerenciasConfig()
     };
@@ -460,6 +470,50 @@ export const actions = {
         } catch (e) {
             console.error('Error actualizando nosotros config:', e);
             return fail(500, { error: 'No se pudo guardar la configuración.' });
+        }
+    },
+
+    /**
+     * Actualiza el contenido de la página /nosotros (upsert singleton)
+     */
+    updateNosotrosPage: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+
+        const formData = await request.formData();
+        const heroBadge = formData.get('heroBadge')?.toString() || 'Desde 2006';
+        const heroTitle = formData.get('heroTitle')?.toString() || '';
+        const heroDescription = formData.get('heroDescription')?.toString() || '';
+        const historyTitle = formData.get('historyTitle')?.toString() || '';
+        const historyParagraphsRaw = formData.get('historyParagraphs')?.toString() || '[]';
+        const historyImageUrl = formData.get('historyImageUrl')?.toString() || '';
+        const missionTitle = formData.get('missionTitle')?.toString() || '';
+        const missionText = formData.get('missionText')?.toString() || '';
+        const visionTitle = formData.get('visionTitle')?.toString() || '';
+        const visionText = formData.get('visionText')?.toString() || '';
+        const galleryImagesRaw = formData.get('galleryImages')?.toString() || '[]';
+
+        try {
+            const [existing] = await db.select().from(nosotrosPage).limit(1);
+            const payload = {
+                heroBadge, heroTitle, heroDescription,
+                historyTitle,
+                historyParagraphs: JSON.parse(historyParagraphsRaw),
+                historyImageUrl,
+                missionTitle, missionText,
+                visionTitle, visionText,
+                galleryImages: JSON.parse(galleryImagesRaw),
+                updatedAt: new Date()
+            };
+
+            if (existing) {
+                await db.update(nosotrosPage).set(payload).where(eq(nosotrosPage.id, existing.id));
+            } else {
+                await db.insert(nosotrosPage).values(payload);
+            }
+            return { nosotrosPageUpdated: true };
+        } catch (e) {
+            console.error('Error actualizando página nosotros:', e);
+            return fail(500, { error: 'No se pudo guardar el contenido de la página.' });
         }
     },
 

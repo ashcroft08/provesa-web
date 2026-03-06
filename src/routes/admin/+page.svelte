@@ -7,6 +7,7 @@
 	import SlidersTab from '$lib/components/admin/SlidersTab.svelte';
 	import ProductosTab from '$lib/components/admin/ProductosTab.svelte';
 	import NosotrosTab from '$lib/components/admin/NosotrosTab.svelte';
+	import NosotrosPageTab from '$lib/components/admin/NosotrosPageTab.svelte';
 	import SugerenciasTab from '$lib/components/admin/SugerenciasTab.svelte';
 	import PlaceholderTab from '$lib/components/admin/PlaceholderTab.svelte';
 
@@ -95,6 +96,8 @@
 			{:else if activeTab === 'Productos'}
 				<ProductosTab products={data.products || []} formResult={form} />
 			{:else if activeTab === 'Nosotros'}
+				<NosotrosPageTab nosotrosPage={data.nosotrosPageData} formResult={form} />
+				<div class="mt-8"></div>
 				<NosotrosTab nosotros={data.nosotros} formResult={form} />
 			{:else if activeTab === 'Footer'}
 				<FooterTab
