@@ -2,6 +2,7 @@
 	// Logica variables, funciones y estados
 	import logo from '$lib/assets/images/provesa-logo.png';
 	import { Menu, X } from 'lucide-svelte';
+	import { page } from '$app/state';
 
 	let { transparent = false } = $props();
 
@@ -10,6 +11,7 @@
 
 	// El navbar es transparente solo si la prop lo permite Y no se ha hecho scroll
 	let isTransparent = $derived(transparent && !scrolled);
+	let nosotrosHref = $derived(page.url.pathname === '/' ? '/#nosotros-teaser' : '/nosotros');
 
 	function handleScroll() {
 		scrolled = window.scrollY > 50;
@@ -47,7 +49,7 @@
 				>Productos</a
 			>
 			<a
-				href="/#nosotros-teaser"
+				href={nosotrosHref}
 				class="relative transition-colors after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:content-[''] hover:text-primary hover:after:w-full"
 				>Nosotros</a
 			>
@@ -97,7 +99,7 @@
 		>
 		<a
 			onclick={() => (menuOpen = false)}
-			href="/#nosotros-teaser"
+			href={nosotrosHref}
 			class="text-2xl font-bold text-slate-800 hover:text-primary">Nosotros</a
 		>
 		<a
