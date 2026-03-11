@@ -1,15 +1,9 @@
 import { fail } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
-import { postulaciones, empleoSucursales } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
-import cloudinary from '$lib/server/cloudinary.js';
+import { empleoService } from '$lib/server/services/empleo.service.js';
+import { postulacionesService } from '$lib/server/services/postulaciones.service.js';
 
 export const load = async () => {
-    const sucursales = await db
-        .select()
-        .from(empleoSucursales)
-        .where(eq(empleoSucursales.activa, true));
-
+    const sucursales = await empleoService.getActive();
     return { sucursales };
 };
 
@@ -27,9 +21,7 @@ export const actions = {
             return fail(400, { error: 'Todos los campos obligatorios deben ser completados.', nombre, telefono, email, sucursal, mensaje });
         }
 
-        let cvUrl = null;
-
-        // Subir CV a Cloudinary si se proporcionó
+        // Validar CV si se proporciona
         if (cvFile && cvFile instanceof File && cvFile.size > 0) {
             const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
             if (!allowedTypes.includes(cvFile.type)) {
@@ -38,31 +30,13 @@ export const actions = {
             if (cvFile.size > 5 * 1024 * 1024) {
                 return fail(400, { error: 'El archivo no puede pesar más de 5MB.', nombre, telefono, email, sucursal, mensaje });
             }
-
-            try {
-                const buffer = Buffer.from(await cvFile.arrayBuffer());
-                const base64 = `data:${cvFile.type};base64,${buffer.toString('base64')}`;
-                const result = await cloudinary.uploader.upload(base64, {
-                    folder: 'provesa-web/postulaciones',
-                    resource_type: 'auto'
-                });
-                cvUrl = result.secure_url;
-            } catch (e) {
-                console.error('Error subiendo CV a Cloudinary:', e);
-                return fail(500, { error: 'Error al subir el archivo. Inténtelo de nuevo.', nombre, telefono, email, sucursal, mensaje });
-            }
         }
 
         try {
-            await db.insert(postulaciones).values({
-                nombre,
-                telefono,
-                email,
-                sucursal,
-                cvUrl,
-                mensaje
-            });
-
+            await postulacionesService.create(
+                { nombre, telefono, email, sucursal, mensaje },
+                cvFile instanceof File && cvFile.size > 0 ? cvFile : null
+            );
             return { success: true };
         } catch (e) {
             console.error('Error guardando postulación:', e);

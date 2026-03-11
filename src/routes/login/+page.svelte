@@ -106,6 +106,15 @@
 					</div>
 				</div>
 
+				<div class="text-right">
+					<a
+						href="/recuperar"
+						class="text-xs font-semibold text-primary/70 transition-colors hover:text-primary"
+					>
+						¿Olvidaste tu contraseña?
+					</a>
+				</div>
+
 				<button
 					type="submit"
 					disabled={loading}

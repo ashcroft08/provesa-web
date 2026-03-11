@@ -18,12 +18,12 @@
 </script>
 
 {#if showChrome}
-	<Navbar transparent={isHome} />
+	<Navbar transparent={isHome} logoUrl={data?.siteConfig?.logoUrl} />
 {/if}
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 {@render children()}
 
 {#if showChrome}
-	<Footer footer={data?.footer} />
+	<Footer footer={data?.footer} logoUrl={data?.siteConfig?.logoUrl} />
 {/if}

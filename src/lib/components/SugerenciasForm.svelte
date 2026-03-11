@@ -82,7 +82,7 @@
 						await update({ reset: false });
 					};
 				}}
-				class="rounded-3xl border border-slate-100 bg-[#F8FAFC] p-8 shadow-sm transition-all hover:shadow-md md:p-10"
+				class="rounded-3xl border border-slate-100 bg-soft-gray p-8 shadow-sm transition-all hover:shadow-md md:p-10"
 			>
 				<input type="hidden" name="tipo" value={tipo} />
 				<div class="mb-6 grid gap-6 md:grid-cols-2">

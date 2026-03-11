@@ -70,7 +70,7 @@
 
 <section
 	id="redes"
-	class="relative overflow-hidden bg-[#FAFAF9] py-16 md:py-24 lg:py-32"
+	class="relative overflow-hidden bg-soft-gray py-16 md:py-24 lg:py-32"
 	use:viewport
 >
 	<div

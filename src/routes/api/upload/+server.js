@@ -1,5 +1,5 @@
-import { json, fail } from '@sveltejs/kit';
-import cloudinary from '$lib/server/cloudinary.js';
+import { json } from '@sveltejs/kit';
+import { uploadRepository } from '$lib/server/repositories/upload.repository.js';
 
 export const POST = async ({ request, locals }) => {
     if (!locals.session) {
@@ -25,14 +25,8 @@ export const POST = async ({ request, locals }) => {
             return json({ error: 'La imagen no puede pesar más de 10MB.' }, { status: 400 });
         }
 
-        // Convertir a base64 para Cloudinary
-        const buffer = Buffer.from(await file.arrayBuffer());
-        const base64 = `data:${file.type};base64,${buffer.toString('base64')}`;
-
-        // Subir a Cloudinary
-        const result = await cloudinary.uploader.upload(base64, {
+        const result = await uploadRepository.uploadImage(file, {
             folder: 'provesa-web',
-            resource_type: 'image',
             transformation: [
                 { quality: 'auto:good', fetch_format: 'auto' }
             ]

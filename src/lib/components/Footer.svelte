@@ -1,8 +1,9 @@
 <script>
-	import logo from '$lib/assets/images/provesa-logo.png';
+	import defaultLogo from '$lib/assets/images/provesa-logo.png';
 	import { MapPin, Phone, Smartphone, Mail, Store } from 'lucide-svelte';
 
-	let { footer = {} } = $props();
+	let { footer = {}, logoUrl = '' } = $props();
+	let logo = $derived(logoUrl || defaultLogo);
 
 	let info = $derived(footer?.info);
 	let branches = $derived(footer?.branches || []);

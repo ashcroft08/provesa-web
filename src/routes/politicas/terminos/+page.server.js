@@ -1,9 +1,7 @@
-import { db } from '$lib/server/db';
-import { legalPages } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { legalRepository } from '$lib/server/repositories/legal.repository.js';
 
 export const load = async () => {
-    const [page] = await db.select().from(legalPages).where(eq(legalPages.slug, 'terminos'));
+    const page = await legalRepository.getBySlug('terminos');
     return {
         legalPage: page || null
     };

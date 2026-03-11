@@ -10,6 +10,7 @@
 	import NosotrosPageTab from '$lib/components/admin/NosotrosPageTab.svelte';
 	import SugerenciasTab from '$lib/components/admin/SugerenciasTab.svelte';
 	import PostulacionesTab from '$lib/components/admin/PostulacionesTab.svelte';
+	import ConfiguracionTab from '$lib/components/admin/ConfiguracionTab.svelte';
 	import PlaceholderTab from '$lib/components/admin/PlaceholderTab.svelte';
 
 	let { data, form } = $props();
@@ -116,7 +117,7 @@
 					empleoSucursales={data.empleoSucursales || []}
 				/>
 			{:else if activeTab === 'Configuración'}
-				<PlaceholderTab title="Configuración" icon="settings" />
+				<ConfiguracionTab siteConfig={data.siteConfig || {}} formResult={form} />
 			{/if}
 		</div>
 	</main>

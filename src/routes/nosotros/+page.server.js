@@ -1,8 +1,7 @@
-import { db } from '$lib/server/db';
-import { nosotrosPage } from '$lib/server/db/schema';
+import { nosotrosRepository } from '$lib/server/repositories/nosotros.repository.js';
 
 export const load = async () => {
-    const [page] = await db.select().from(nosotrosPage).limit(1);
+    const page = await nosotrosRepository.getPage();
     return {
         nosotrosPage: page || null
     };

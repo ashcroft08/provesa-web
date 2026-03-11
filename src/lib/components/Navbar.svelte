@@ -1,10 +1,11 @@
 <script>
 	// Logica variables, funciones y estados
-	import logo from '$lib/assets/images/provesa-logo.png';
+	import defaultLogo from '$lib/assets/images/provesa-logo.png';
 	import { Menu, X } from 'lucide-svelte';
 	import { page } from '$app/state';
 
-	let { transparent = false } = $props();
+	let { transparent = false, logoUrl = '' } = $props();
+	let logo = $derived(logoUrl || defaultLogo);
 
 	let scrolled = $state(false); // Estado reactivo para el scroll
 	let menuOpen = $state(false); // Estado reactivo para el menu

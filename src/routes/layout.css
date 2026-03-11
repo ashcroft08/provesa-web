@@ -2,12 +2,21 @@
 @plugin '@tailwindcss/forms';
 
 @theme {
-    /* En Tailwind v4, usa variables CSS con prefijo -- */
+    /* ─── Colores principales del tema (editables desde el admin) ─── */
     --color-primary: #455dd9;
     --color-secondary: #ffd100;
     --color-accent: #e4002b;
     --color-background: #ffffff;
+
+    /* ─── Aliases (se sincronizan con los colores principales) ─── */
     --color-accent-red: #e4002b;
     --color-accent-yellow: #ffd100;
+
+    /* ─── Colores de soporte (no editables) ─── */
     --color-soft-gray: #F8FAFC;
+}
+
+/* Aplicar el color de fondo del tema a toda la página */
+body {
+    background-color: var(--color-background);
 }

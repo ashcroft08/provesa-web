@@ -1,15 +1,18 @@
-import { db } from '$lib/server/db';
-import { footerInfo, footerBranches } from '$lib/server/db/schema';
-import { asc } from 'drizzle-orm';
+import { footerRepository } from '$lib/server/repositories/footer.repository.js';
+import { siteConfigRepository } from '$lib/server/repositories/site-config.repository.js';
 
 export const load = async () => {
-    const [info] = await db.select().from(footerInfo).limit(1);
-    const branches = await db.select().from(footerBranches).orderBy(asc(footerBranches.sortOrder));
+    const [info, branches, siteConfigData] = await Promise.all([
+        footerRepository.getInfo(),
+        footerRepository.getBranches(),
+        siteConfigRepository.getAll()
+    ]);
 
     return {
         footer: {
             info: info || null,
             branches
-        }
+        },
+        siteConfig: siteConfigData
     };
 };

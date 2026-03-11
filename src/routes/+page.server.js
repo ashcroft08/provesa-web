@@ -1,14 +1,18 @@
-import { db } from '$lib/server/db';
-import { heroSlides, products, nosotrosConfig, sugerencias, sugerenciasConfig, footerInfo } from '$lib/server/db/schema';
-import { asc } from 'drizzle-orm';
+import { slidesService } from '$lib/server/services/slides.service.js';
+import { productsService } from '$lib/server/services/products.service.js';
+import { nosotrosService } from '$lib/server/services/nosotros.service.js';
+import { sugerenciasService } from '$lib/server/services/sugerencias.service.js';
+import { footerRepository } from '$lib/server/repositories/footer.repository.js';
 import { fail } from '@sveltejs/kit';
 
 export const load = async () => {
-    const slides = await db.select().from(heroSlides).orderBy(asc(heroSlides.sortOrder));
-    const productsList = await db.select().from(products).orderBy(asc(products.sortOrder));
-    const [nosotros] = await db.select().from(nosotrosConfig).limit(1);
-    const [sugConfig] = await db.select().from(sugerenciasConfig).limit(1);
-    const [footer] = await db.select().from(footerInfo).limit(1);
+    const [slides, productsList, nosotros, sugConfig, footer] = await Promise.all([
+        slidesService.getAllSlides(),
+        productsService.getAllProducts(),
+        nosotrosService.getConfig(),
+        sugerenciasService.getConfig(),
+        footerRepository.getInfo()
+    ]);
 
     return {
         slides,
@@ -31,11 +35,7 @@ export const actions = {
         }
 
         try {
-            await db.insert(sugerencias).values({
-                tipo,
-                nombre,
-                mensaje
-            });
+            await sugerenciasService.create({ tipo, nombre, mensaje });
             return { success: true };
         } catch (e) {
             console.error('Error guardando sugerencia:', e);

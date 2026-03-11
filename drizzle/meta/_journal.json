@@ -29,6 +29,13 @@
       "when": 1772832746098,
       "tag": "0003_loving_blizzard",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1772836822664,
+      "tag": "0004_giant_post",
+      "breakpoints": true
     }
   ]
 }
