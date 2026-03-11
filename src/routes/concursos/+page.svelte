@@ -95,7 +95,7 @@
 				>
 					Comunidad Provesa
 				</span>
-				<h2 class="mb-6 text-4xl font-extrabold text-slate-900 md:text-5xl">Concursos y Premios</h2>
+				<h2 class="mb-6 text-4xl font-extrabold text-slate-900 md:text-6xl">Concursos y Premios</h2>
 				<p class="mx-auto max-w-2xl text-xl text-slate-600">
 					Premiamos la lealtad y el esfuerzo de nuestros socios mayoristas con incentivos reales
 					para su negocio.

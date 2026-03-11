@@ -42,8 +42,8 @@
 			<Briefcase size={14} />
 			Únete al equipo
 		</span>
-		<h1 class="mt-4 text-4xl font-extrabold md:text-5xl">Trabaja con Nosotros</h1>
-		<p class="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-blue-100">
+		<h1 class="mt-4 text-4xl font-extrabold md:text-6xl">Trabaja con Nosotros</h1>
+		<p class="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-blue-100 md:text-xl">
 			¿Buscas oportunidades? Déjanos tus datos y te contactaremos cuando tengamos vacantes
 			disponibles en nuestras sucursales.
 		</p>
@@ -83,7 +83,7 @@
 					</a>
 				</div>
 			{:else}
-				<h2 class="text-xl font-extrabold text-slate-900">Formulario de Postulación</h2>
+				<h2 class="text-2xl font-extrabold text-slate-900">Formulario de Postulación</h2>
 				<p class="mt-1 mb-8 text-sm text-slate-500">
 					Los campos marcados con <span class="text-accent-red font-bold">*</span> son obligatorios.
 				</p>
