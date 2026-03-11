@@ -12,6 +12,7 @@
 	import PostulacionesTab from '$lib/components/admin/PostulacionesTab.svelte';
 	import ConfiguracionTab from '$lib/components/admin/ConfiguracionTab.svelte';
 	import PlaceholderTab from '$lib/components/admin/PlaceholderTab.svelte';
+	import ConcursosTab from '$lib/components/admin/ConcursosTab.svelte';
 
 	let { data, form } = $props();
 
@@ -42,6 +43,7 @@
 		{ name: 'Páginas Legales', icon: 'policy' },
 		{ name: 'Sugerencias', icon: 'chat_bubble_outline', badge: unreadSugerencias },
 		{ name: 'Candidatos', icon: 'people_outline' },
+		{ name: 'Concursos', icon: 'emoji_events' },
 		{ name: 'Configuración', icon: 'settings' }
 	]);
 </script>
@@ -118,6 +120,12 @@
 				/>
 			{:else if activeTab === 'Configuración'}
 				<ConfiguracionTab siteConfig={data.siteConfig || {}} formResult={form} />
+			{:else if activeTab === 'Concursos'}
+				<ConcursosTab
+					concursos={data.concursosList || []}
+					ganadores={data.ganadoresList || []}
+					formResult={form}
+				/>
 			{/if}
 		</div>
 	</main>

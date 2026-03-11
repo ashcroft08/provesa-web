@@ -19,4 +19,5 @@ export * from './schemas/sugerencias_config.schema.js';
 export * from './schemas/postulaciones.schema.js';
 export * from './schemas/empleo_sucursales.schema.js';
 export * from './schemas/site_config.schema.js';
+export * from './schemas/concursos.schema.js';
 

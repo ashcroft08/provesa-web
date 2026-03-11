@@ -9,13 +9,14 @@ import { sugerenciasService } from '$lib/server/services/sugerencias.service.js'
 import { postulacionesService } from '$lib/server/services/postulaciones.service.js';
 import { empleoService } from '$lib/server/services/empleo.service.js';
 import { siteConfigService } from '$lib/server/services/site-config.service.js';
+import { concursosService } from '$lib/server/services/concursos.service.js';
 
 export const load = async (event) => {
     if (!event.locals.session) {
         throw redirect(302, '/login');
     }
 
-    const [footer, legal, slides, products, nosotros, nosotrosPageData, sugerencias, sugerenciasConfig, postulaciones, empleoSucursales, siteConfig] =
+    const [footer, legal, slides, products, nosotros, nosotrosPageData, sugerencias, sugerenciasConfig, postulaciones, empleoSucursales, siteConfig, concursosList, ganadoresList] =
         await Promise.all([
             footerService.getFooterData(),
             legalService.getLegalPages(),
@@ -27,7 +28,9 @@ export const load = async (event) => {
             sugerenciasService.getConfig(),
             postulacionesService.getAll(),
             empleoService.getAll(),
-            siteConfigService.getConfigMap()
+            siteConfigService.getConfigMap(),
+            concursosService.getAllConcursos(),
+            concursosService.getAllGanadores()
         ]);
 
     return {
@@ -43,7 +46,9 @@ export const load = async (event) => {
         sugerenciasConfig,
         postulaciones,
         empleoSucursales,
-        siteConfig
+        siteConfig,
+        concursosList,
+        ganadoresList
     };
 };
 
@@ -423,6 +428,86 @@ export const actions = {
         } catch (e) {
             console.error('Error subiendo logo:', e);
             return fail(500, { error: 'Error al subir el logo' });
+        }
+    },
+
+    // ─── Concursos ───
+
+    addConcurso: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+        const formData = await request.formData();
+        try {
+            await concursosService.addConcurso(formData);
+            return { concursoAdded: true };
+        } catch (e) {
+            console.error('Error creando concurso:', e);
+            return fail(500, { error: 'Error al crear el concurso' });
+        }
+    },
+
+    updateConcurso: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+        const formData = await request.formData();
+        const id = parseInt(formData.get('id'));
+        try {
+            await concursosService.updateConcurso(id, formData);
+            return { concursoUpdated: true };
+        } catch (e) {
+            console.error('Error actualizando concurso:', e);
+            return fail(500, { error: 'Error al actualizar el concurso' });
+        }
+    },
+
+    deleteConcurso: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+        const formData = await request.formData();
+        const id = parseInt(formData.get('id'));
+        try {
+            await concursosService.deleteConcurso(id);
+            return { concursoDeleted: true };
+        } catch (e) {
+            console.error('Error eliminando concurso:', e);
+            return fail(500, { error: 'Error al eliminar el concurso' });
+        }
+    },
+
+    // ─── Ganadores ───
+
+    addGanador: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+        const formData = await request.formData();
+        try {
+            await concursosService.addGanador(formData);
+            return { ganadorAdded: true };
+        } catch (e) {
+            console.error('Error creando ganador:', e);
+            return fail(500, { error: 'Error al crear el ganador' });
+        }
+    },
+
+    updateGanador: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+        const formData = await request.formData();
+        const id = parseInt(formData.get('id'));
+        try {
+            await concursosService.updateGanador(id, formData);
+            return { ganadorUpdated: true };
+        } catch (e) {
+            console.error('Error actualizando ganador:', e);
+            return fail(500, { error: 'Error al actualizar el ganador' });
+        }
+    },
+
+    deleteGanador: async ({ request, locals }) => {
+        if (!locals.session) return fail(401);
+        const formData = await request.formData();
+        const id = parseInt(formData.get('id'));
+        try {
+            await concursosService.deleteGanador(id);
+            return { ganadorDeleted: true };
+        } catch (e) {
+            console.error('Error eliminando ganador:', e);
+            return fail(500, { error: 'Error al eliminar el ganador' });
         }
     }
 };
