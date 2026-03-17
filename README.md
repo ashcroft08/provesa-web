@@ -82,26 +82,60 @@ GMAIL_APP_PASSWORD="tu-app-password"
 
 ```
 provesa-web/
-├── drizzle/                  # Migraciones de base de datos
+├── drizzle/                  # Migraciones y esquema generado (introspect)
 ├── src/
 │   ├── lib/
 │   │   ├── assets/           # Recursos estáticos (favicon, etc.)
-│   │   ├── components/       # Componentes reutilizables (Navbar, Admin)
-│   │   ├── server/
-│   │   │   ├── auth.js       # Configuración de Better Auth
-│   │   │   └── db/           # Esquemas Drizzle, seeds y conexión
+│   │   ├── components/       # Componentes de UI y lógica de negocio
+│   │   ├── server/           # Lógica del lado del servidor
+│   │   │   ├── auth.js       # Autenticación con Better Auth
+│   │   │   ├── db/           # Esquemas Drizzle, seeds y conexión
+│   │   │   ├── services/     # Capa de Negocio (validación, lógica pesada)
+│   │   │   └── repositories/ # Capa de Acceso a Datos (consultas SQL/Drizzle)
 │   │   └── utils/            # Utilidades compartidas
 │   └── routes/
+│       ├── (public)/         # Rutras públicas (Home, Nosotros, etc.)
 │       ├── admin/            # Panel administrativo (protegido)
-│       ├── login/            # Inicio de sesión
-│       ├── recuperar/        # Solicitar recuperación de contraseña
-│       └── restablecer-password/  # Restablecer contraseña
+│       └── login/            # Inicio de sesión y recuperación
 ├── static/                   # Archivos estáticos públicos
-├── .env.example              # Plantilla de variables de entorno
-├── drizzle.config.js         # Configuración de Drizzle Kit
-├── svelte.config.js          # Configuración de SvelteKit
-└── vite.config.js            # Configuración de Vite
+└── ... 
 ```
+
+## 🏗️ Arquitectura Técnica
+
+El proyecto sigue el patrón **Service-Repository** para desacoplar la lógica de negocio del acceso a datos.
+
+1.  **Repositories (`/repositories`)**: Encapsulan las consultas directas a la base de datos usando Drizzle ORM. No contienen lógica de negocio.
+2.  **Services (`/services`)**: Contienen la lógica de negocio, validaciones complejas, integración con servicios externos (Cloudinary) y procesamiento de datos antes de enviarlos al repositorio.
+3.  **Svelte Actions (`+page.server.js`)**: Los Actions invocan servicios y manejan la respuesta para los formularios de SvelteKit.
+
+### 🔍 SEO y Visibilidad
+
+Se utiliza un componente centralizado `SEO.svelte` que abstrae toda la lógica de meta-tags.
+
+*   **Uso**: En cualquier `+page.svelte`, importa e inserta el componente.
+```svelte
+<SEO 
+  title="Mi Página" 
+  description="Descripción optimizada" 
+  ogImage="url-de-cloudinary"
+/>
+```
+*   **Social**: Maneja automáticamente Open Graph (Facebook/WhatsApp) y Twitter Cards.
+*   **Canonical**: Resuelve automáticamente la URL canónica para evitar contenido duplicado.
+*   **JSON-LD**: Permite inyectar datos estructurados (Schema.org) como un prop.
+
+### 📝 Validación de Formularios
+
+Implementamos una estrategia de validación en dos capas:
+
+1.  **Lado del Cliente**: En componentes como `SugerenciasForm.svelte`, validamos el estado reactivo (`$state`) antes de enviar, proporcionando feedback instantáneo al usuario (ej: longitud máxima de caracteres).
+2.  **Lado del Servidor**: En los Actions de SvelteKit, validamos la integridad de los datos antes de procesarlos. Se utiliza la función `fail()` para retornar errores de validación que se muestran mediante el prop `form` en el componente.
+
+### 📦 Gestión de Productos
+
+Los productos utilizan un esquema flexible basado en **JSONB**. Esto permite almacenar listas de características o categorías sin necesidad de múltiples tablas de union, simplificando la sincronización entre el formulario dinámico del admin y la base de datos.
+Recientemente se ha optimizado el manejo de tipos en JSDoc para garantizar que las desestructuraciones de estos objetos genéricos no generen advertencias de tipos.
 
 ## 📜 Scripts disponibles
 

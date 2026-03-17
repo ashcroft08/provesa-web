@@ -1,4 +1,13 @@
 <script>
+	/**
+	 * @component ConcursosTab
+	 * Panel integral para la gestión de sorteos/concursos y sus ganadores.
+	 * Características clave:
+	 * 1. Control de estado 'Activo': Oculta automáticamente concursos caducados.
+	 * 2. Gestión de Ganadores: Permite vincular testimonios e imágenes a concursos finalizados.
+	 * 3. Drag & Drop Visual (simulado por sortOrder): Controla el orden de aparición.
+	 * 4. Integración Directa con FormData: Los envíos se manejan como multipart/form-data para incluir imágenes.
+	 */
 	import { enhance } from '$app/forms';
 	import { fade, slide } from 'svelte/transition';
 

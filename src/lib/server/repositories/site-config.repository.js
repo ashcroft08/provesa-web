@@ -14,13 +14,22 @@ export const siteConfigRepository = {
         return config;
     },
 
-    /** Obtiene un valor por clave */
+    /** 
+     * Recupera una configuración específica por su clave única.
+     * @param {string} key - Clave de la configuración (ej: 'logoUrl').
+     * @returns {Promise<string|null>}
+     */
     async get(key) {
         const [row] = await db.select().from(siteConfig).where(eq(siteConfig.key, key));
         return row?.value || null;
     },
 
-    /** Crea o actualiza un valor por clave */
+    /** 
+     * Inserta o actualiza un valor de configuración global.
+     * @param {string} key - Clave del ajuste.
+     * @param {string} value - Valor asociado.
+     * @returns {Promise<void>}
+     */
     async upsert(key, value) {
         const existing = await db.select().from(siteConfig).where(eq(siteConfig.key, key));
 

@@ -1,15 +1,21 @@
 <script>
+	/**
+	 * @component SugerenciasForm
+	 * Formulario de contacto y sugerencias con validación en el lado del cliente y del servidor.
+	 * Utiliza Svelte Actions (enhance) para una experiencia SPA sin refrescos.
+	 */
 	import { enhance } from '$app/forms';
 	import { MessageSquareText, Send, User, ChevronDown } from 'lucide-svelte';
 
 	/** @type {{ tipos?: string[] }} */
 	let {
+		/** @type {string[]} Opciones dinámicas para el desplegable de tipos de mensaje. */
 		tipos = ['Sugerencia de Servicio', 'Nuevo Producto Requerido', 'Reclamo', 'Felicitación']
 	} = $props();
 
 	let tipo = $state('');
 
-	// Sincronizamos tipo inicial cuando carga la prop
+	// Sincronizamos el primer tipo disponible como valor por defecto al montar
 	$effect(() => {
 		if (!tipo && tipos && tipos.length > 0) {
 			tipo = tipos[0];
@@ -23,6 +29,10 @@
 	let dropdownOpen = $state(false);
 	let errors = $state({ mensaje: '' });
 
+	/** 
+	 * Valida el estado actual del formulario antes de enviar.
+	 * @returns {boolean}
+	 */
 	function validate() {
 		let valid = true;
 		if (!mensaje.trim()) {
@@ -37,7 +47,11 @@
 		return valid;
 	}
 
-	function selectTipo(/** @type {string} */ t) {
+	/**
+	 * Cambia el tipo seleccionado y cierra el dropdown personalizado.
+	 * @param {string} t
+	 */
+	function selectTipo(t) {
 		tipo = t;
 		dropdownOpen = false;
 	}

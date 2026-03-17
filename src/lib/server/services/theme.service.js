@@ -1,7 +1,10 @@
 import { siteConfigRepository } from '../repositories/site-config.repository.js';
 
 export const themeService = {
-    /** Lee los colores actuales de la base de datos (site_config) */
+    /** 
+     * Lee los colores actuales de la base de datos (site_config).
+     * @returns {Promise<{primary: string, secondary: string, accent: string, background: string, navbarHover: string}>}
+     */
     async getThemeColors() {
         try {
             const config = await siteConfigRepository.getAll();
