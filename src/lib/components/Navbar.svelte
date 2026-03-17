@@ -27,42 +27,42 @@
 	class:nav-transparent={isTransparent}
 >
 	<div class="mx-auto flex h-24 max-w-7xl items-center justify-between px-6">
-		<a href="/" class="group flex items-center gap-2">
+		<button onclick={() => window.location.assign('/')} class="group flex items-center gap-2">
 			<!-- Logo replacement -->
 			<img
 				src={logo}
 				alt="Provesa Logo"
 				class="h-16 w-auto object-contain transition-transform duration-300 hover:scale-105"
 			/>
-		</a>
+		</button>
 
 		<div
 			class="hidden items-center gap-10 text-sm font-medium tracking-wide text-slate-600 md:flex"
 		>
-			<a
-				href="/#inicio"
-				class="relative transition-colors after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:content-[''] hover:text-primary hover:after:w-full"
-				>Inicio</a
+			<button
+				onclick={() => window.location.assign('/#inicio')}
+				class="nav-link hover:text-(--color-navbar-hover) after:bg-(--color-navbar-hover)"
+				>Inicio</button
 			>
-			<a
-				href="/#productos"
-				class="relative transition-colors after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:content-[''] hover:text-primary hover:after:w-full"
-				>Productos</a
+			<button
+				onclick={() => window.location.assign('/#productos')}
+				class="nav-link hover:text-(--color-navbar-hover) after:bg-(--color-navbar-hover)"
+				>Productos</button
 			>
-			<a
-				href={nosotrosHref}
-				class="relative transition-colors after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:content-[''] hover:text-primary hover:after:w-full"
-				>Nosotros</a
+			<button
+				onclick={() => window.location.assign(nosotrosHref)}
+				class="nav-link hover:text-(--color-navbar-hover) after:bg-(--color-navbar-hover)"
+				>Nosotros</button
 			>
-			<a
-				href="/concursos"
-				class="relative transition-colors after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:content-[''] hover:text-primary hover:after:w-full"
-				>Concursos</a
+			<button
+				onclick={() => window.location.assign('/concursos')}
+				class="nav-link hover:text-(--color-navbar-hover) after:bg-(--color-navbar-hover)"
+				>Concursos</button
 			>
-			<a
-				href="/empleo"
-				class="relative transition-colors after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:content-[''] hover:text-primary hover:after:w-full"
-				>Trabaja con Nosotros</a
+			<button
+				onclick={() => window.location.assign('/empleo')}
+				class="nav-link hover:text-(--color-navbar-hover) after:bg-(--color-navbar-hover)"
+				>Trabaja con Nosotros</button
 			>
 		</div>
 
@@ -88,31 +88,51 @@
 
 		<img src={logo} alt="Provesa Logo" class="mb-4 h-20 w-auto" />
 
-		<a
-			onclick={() => (menuOpen = false)}
-			href="/#inicio"
-			class="text-2xl font-bold text-slate-800 hover:text-primary">Inicio</a
+		<button
+			onclick={() => {
+				menuOpen = false;
+				window.location.assign('/#inicio');
+			}}
+			class="text-2xl font-bold text-slate-800 hover:text-primary"
 		>
-		<a
-			onclick={() => (menuOpen = false)}
-			href="/#productos"
-			class="text-2xl font-bold text-slate-800 hover:text-primary">Productos</a
+			Inicio
+		</button>
+		<button
+			onclick={() => {
+				menuOpen = false;
+				window.location.assign('/#productos');
+			}}
+			class="text-2xl font-bold text-slate-800 hover:text-primary"
 		>
-		<a
-			onclick={() => (menuOpen = false)}
-			href={nosotrosHref}
-			class="text-2xl font-bold text-slate-800 hover:text-primary">Nosotros</a
+			Productos
+		</button>
+		<button
+			onclick={() => {
+				menuOpen = false;
+				window.location.assign(nosotrosHref);
+			}}
+			class="text-2xl font-bold text-slate-800 hover:text-primary"
 		>
-		<a
-			onclick={() => (menuOpen = false)}
-			href="/concursos"
-			class="text-2xl font-bold text-slate-800 hover:text-primary">Concursos</a
+			Nosotros
+		</button>
+		<button
+			onclick={() => {
+				menuOpen = false;
+				window.location.assign('/concursos');
+			}}
+			class="text-2xl font-bold text-slate-800 hover:text-primary"
 		>
-		<a
-			onclick={() => (menuOpen = false)}
-			href="/empleo"
-			class="text-2xl font-bold text-slate-800 hover:text-primary">Trabaja con Nosotros</a
+			Concursos
+		</button>
+		<button
+			onclick={() => {
+				menuOpen = false;
+				window.location.assign('/empleo');
+			}}
+			class="text-2xl font-bold text-slate-800 hover:text-primary"
 		>
+			Trabaja con Nosotros
+		</button>
 	</div>
 {/if}
 
@@ -143,10 +163,28 @@
 		filter: brightness(0) invert(1);
 	}
 
-	/* Navbar sólido al hacer scroll */
 	.nav-scrolled {
 		background: rgba(255, 255, 255, 0.9) !important;
 		backdrop-filter: blur(12px) !important;
 		border-bottom-color: rgba(241, 245, 249, 1) !important;
+	}
+
+	.nav-link {
+		position: relative;
+		transition: color 0.3s ease;
+	}
+
+	.nav-link::after {
+		content: '';
+		position: absolute;
+		bottom: -4px;
+		left: 0;
+		height: 2px;
+		width: 0;
+		transition: width 0.3s ease;
+	}
+
+	.nav-link:hover::after {
+		width: 100%;
 	}
 </style>

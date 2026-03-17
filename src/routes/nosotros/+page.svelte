@@ -1,5 +1,6 @@
 <script>
 	import { Target, Eye, BookOpen } from 'lucide-svelte';
+	import SEO from '$lib/components/SEO.svelte';
 	let { data } = $props();
 
 	// Defaults que coinciden con lo que están en el schema
@@ -69,9 +70,10 @@
 	);
 </script>
 
-<svelte:head>
-	<title>Nosotros - PROVESA SCC</title>
-</svelte:head>
+<SEO 
+	title="Conócenos - Nuestra Historia y Misión"
+	description="Desde 2006, PROVESA SCC ha sido el aliado estratégico del comercio local. Conoce nuestra historia, misión y visión como distribuidores líderes."
+/>
 
 <!-- HERO SECTION -->
 <header class="relative overflow-hidden bg-primary pt-36 pb-24">

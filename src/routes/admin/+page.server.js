@@ -74,11 +74,12 @@ export const actions = {
 		if (!locals.session) return fail(401);
 		const formData = await request.formData();
 		try {
-			themeService.updateThemeColors({
+			await themeService.updateThemeColors({
 				primary: formData.get('primary')?.toString(),
 				secondary: formData.get('secondary')?.toString(),
 				accent: formData.get('accent')?.toString(),
-				background: formData.get('background')?.toString()
+				background: formData.get('background')?.toString(),
+				navbarHover: formData.get('navbarHover')?.toString()
 			});
 			return { success: true };
 		} catch (error) {

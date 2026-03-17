@@ -21,7 +21,26 @@
 	<Navbar transparent={isHome} logoUrl={data?.siteConfig?.logoUrl} />
 {/if}
 
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<!-- Aplicación dinámica de colores del tema -->
+<svelte:head>
+	<link rel="icon" href={favicon} />
+	{#if data?.theme}
+		<style>
+			:root {
+				--color-primary: {data.theme.primary} !important;
+				--color-secondary: {data.theme.secondary} !important;
+				--color-accent: {data.theme.accent} !important;
+				--color-background: {data.theme.background} !important;
+				--color-navbar-hover: {data.theme.navbarHover} !important;
+
+				/* Aliases */
+				--color-accent-red: {data.theme.accent} !important;
+				--color-accent-yellow: {data.theme.secondary} !important;
+			}
+		</style>
+	{/if}
+</svelte:head>
+
 {@render children()}
 
 {#if showChrome}

@@ -10,21 +10,84 @@
 		MapPin
 	} from 'lucide-svelte';
 	import { base } from '$app/paths';
+	import SEO from '$lib/components/SEO.svelte';
 
 	let { data, form } = $props();
 	let isSubmitting = $state(false);
 	let fileName = $state('');
+	let errors = $state({
+		nombre: '',
+		telefono: '',
+		email: '',
+		sucursal: '',
+		cv: ''
+	});
+
+	// Usaremos estados locales para el binding y validación en tiempo real
+	let nombre = $state(form?.nombre || '');
+	let telefono = $state(form?.telefono || '');
+	let email = $state(form?.email || '');
+	let sucursal = $state(form?.sucursal || '');
+	let msg = $state(form?.mensaje || '');
+
+	function validate() {
+		let valid = true;
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		const telRegex = /^\d+$/; // Permitir solo dígitos por simplicidad o validación más estricta
+
+		if (nombre.length < 3) {
+			errors.nombre = 'El nombre es demasiado corto';
+			valid = false;
+		} else {
+			errors.nombre = '';
+		}
+
+		if (!emailRegex.test(email)) {
+			errors.email = 'Ingrese un correo electrónico válido';
+			valid = false;
+		} else {
+			errors.email = '';
+		}
+
+		if (!telefono || telefono.length < 7) {
+			errors.telefono = 'Ingrese un número de teléfono válido';
+			valid = false;
+		} else {
+			errors.telefono = '';
+		}
+
+		if (!sucursal) {
+			errors.sucursal = 'Seleccione una sucursal';
+			valid = false;
+		} else {
+			errors.sucursal = '';
+		}
+
+		return valid;
+	}
 
 	/** @param {Event} e */
 	function handleFileChange(e) {
 		const file = /** @type {HTMLInputElement} */ (e.target)?.files?.[0];
-		fileName = file ? file.name : '';
+		if (file) {
+			if (file.size > 5 * 1024 * 1024) {
+				errors.cv = 'El archivo no debe exceder los 5MB';
+				fileName = '';
+				/** @type {HTMLInputElement} */ (e.target).value = '';
+			} else {
+				errors.cv = '';
+				fileName = file.name;
+			}
+		} else {
+			fileName = '';
+		}
 	}
 </script>
 
-<svelte:head>
-	<title>Trabaja con Nosotros - PROVESA SCC</title>
-</svelte:head>
+<SEO 
+	title="Trabaja con Nosotros - Únete al Equipo"
+	description="¿Buscas crecimiento profesional? Postúlate para formar parte de PROVESA SCC, el distribuidor mayorista líder. Déjanos tu CV."
+/>
 
 <!-- HERO -->
 <header class="relative overflow-hidden bg-primary pt-36 pb-20">
@@ -101,7 +164,8 @@
 				<form
 					method="POST"
 					enctype="multipart/form-data"
-					use:enhance={() => {
+					use:enhance={({ cancel }) => {
+						if (!validate()) return cancel();
 						isSubmitting = true;
 						return async ({ update }) => {
 							isSubmitting = false;
@@ -120,10 +184,14 @@
 								id="empleo-nombre"
 								name="nombre"
 								required
-								value={form && 'nombre' in form ? form.nombre : ''}
-								class="w-full rounded-xl border-slate-200 bg-slate-50 p-3 text-sm transition-colors focus:border-primary focus:bg-white focus:ring-primary/20"
+								bind:value={nombre}
+								class="w-full rounded-xl border bg-slate-50 p-3 text-sm transition-all focus:bg-white focus:ring-2 focus:ring-primary/20
+								{errors.nombre ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'}"
 								placeholder="Tu nombre completo"
 							/>
+							{#if errors.nombre}
+								<p class="mt-1 text-[10px] font-bold text-red-500">{errors.nombre}</p>
+							{/if}
 						</div>
 						<div>
 							<label for="empleo-telefono" class="mb-2 block text-sm font-bold text-slate-700"
@@ -134,10 +202,14 @@
 								id="empleo-telefono"
 								name="telefono"
 								required
-								value={form && 'telefono' in form ? form.telefono : ''}
-								class="w-full rounded-xl border-slate-200 bg-slate-50 p-3 text-sm transition-colors focus:border-primary focus:bg-white focus:ring-primary/20"
+								bind:value={telefono}
+								class="w-full rounded-xl border bg-slate-50 p-3 text-sm transition-all focus:bg-white focus:ring-2 focus:ring-primary/20
+								{errors.telefono ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'}"
 								placeholder="099..."
 							/>
+							{#if errors.telefono}
+								<p class="mt-1 text-[10px] font-bold text-red-500">{errors.telefono}</p>
+							{/if}
 						</div>
 					</div>
 
@@ -150,10 +222,14 @@
 							id="empleo-email"
 							name="email"
 							required
-							value={form && 'email' in form ? form.email : ''}
-							class="w-full rounded-xl border-slate-200 bg-slate-50 p-3 text-sm transition-colors focus:border-primary focus:bg-white focus:ring-primary/20"
+							bind:value={email}
+							class="w-full rounded-xl border bg-slate-50 p-3 text-sm transition-all focus:bg-white focus:ring-2 focus:ring-primary/20
+							{errors.email ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'}"
 							placeholder="ejemplo@correo.com"
 						/>
+						{#if errors.email}
+							<p class="mt-1 text-[10px] font-bold text-red-500">{errors.email}</p>
+						{/if}
 					</div>
 
 					<div>
@@ -168,17 +244,18 @@
 							id="empleo-sucursal"
 							name="sucursal"
 							required
-							class="w-full rounded-xl border-slate-200 bg-slate-50 p-3 text-sm transition-colors focus:border-primary focus:bg-white focus:ring-primary/20"
+							bind:value={sucursal}
+							class="w-full rounded-xl border bg-slate-50 p-3 text-sm transition-all focus:bg-white focus:ring-2 focus:ring-primary/20
+							{errors.sucursal ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'}"
 						>
-							<option value="" disabled selected>Selecciona una sucursal</option>
+							<option value="" disabled>Selecciona una sucursal</option>
 							{#each data.sucursales || [] as suc (suc.id || suc.nombre)}
-								<option
-									value={suc.nombre}
-									selected={form && 'sucursal' in form ? form.sucursal === suc.nombre : false}
-									>{suc.nombre}</option
-								>
+								<option value={suc.nombre}>{suc.nombre}</option>
 							{/each}
 						</select>
+						{#if errors.sucursal}
+							<p class="mt-1 text-[10px] font-bold text-red-500">{errors.sucursal}</p>
+						{/if}
 					</div>
 
 					<div>
@@ -215,6 +292,9 @@
 								onchange={handleFileChange}
 							/>
 						</label>
+						{#if errors.cv}
+							<p class="mt-2 text-[10px] font-bold text-red-500">{errors.cv}</p>
+						{/if}
 					</div>
 
 					<div>
@@ -224,11 +304,11 @@
 						<textarea
 							id="empleo-mensaje"
 							name="mensaje"
-							class="w-full rounded-xl border-slate-200 bg-slate-50 p-3 text-sm transition-colors focus:border-primary focus:bg-white focus:ring-primary/20"
+							bind:value={msg}
+							class="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm transition-all focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20"
 							rows="3"
 							placeholder="Cuéntanos sobre tu experiencia..."
-							>{form && 'mensaje' in form ? form.mensaje : ''}</textarea
-						>
+						></textarea>
 					</div>
 
 					<button

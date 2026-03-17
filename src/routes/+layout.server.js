@@ -1,11 +1,13 @@
 import { footerRepository } from '$lib/server/repositories/footer.repository.js';
 import { siteConfigRepository } from '$lib/server/repositories/site-config.repository.js';
+import { themeService } from '$lib/server/services/theme.service.js';
 
 export const load = async () => {
-    const [info, branches, siteConfigData] = await Promise.all([
+    const [info, branches, siteConfigData, theme] = await Promise.all([
         footerRepository.getInfo(),
         footerRepository.getBranches(),
-        siteConfigRepository.getAll()
+        siteConfigRepository.getAll(),
+        themeService.getThemeColors()
     ]);
 
     return {
@@ -13,6 +15,7 @@ export const load = async () => {
             info: info || null,
             branches
         },
-        siteConfig: siteConfigData
+        siteConfig: siteConfigData,
+        theme
     };
 };

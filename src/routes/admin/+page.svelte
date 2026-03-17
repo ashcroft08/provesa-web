@@ -16,14 +16,14 @@
 	let { data, form } = $props();
 
 	// Estado para los colores del tema (sincronizado con datos del servidor)
-	let theme = $state({ primary: '#000000', secondary: '#000000', accent: '#000000', background: '#ffffff' });
+	let theme = $state({ primary: '#000000', secondary: '#000000', accent: '#000000', background: '#ffffff', navbarHover: '#455dd9' });
 
 	// Estado para la pestaña activa
 	let activeTab = $state('Dashboard');
 
 	$effect(() => {
 		if (data.theme) {
-			theme = { ...data.theme };
+			theme = { ...theme, ...data.theme };
 		}
 	});
 
