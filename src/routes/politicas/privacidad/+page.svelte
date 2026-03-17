@@ -1,12 +1,14 @@
 <script>
 	import { base } from '$app/paths';
+	import SEO from '$lib/components/SEO.svelte';
 	let { data } = $props();
 	let page = $derived(data.legalPage);
 </script>
 
-<svelte:head>
-	<title>{page?.title || 'Política de Privacidad'} - PROVESA SCC</title>
-</svelte:head>
+<SEO 
+	title={page?.title || 'Política de Privacidad'}
+	description="Consulta nuestra política de privacidad para entender cómo protegemos y manejamos tus datos en PROVESA SCC."
+/>
 
 <div class="min-h-screen bg-background">
 	<div class="mx-auto max-w-4xl px-6 pt-32 pb-20">
