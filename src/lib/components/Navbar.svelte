@@ -75,7 +75,7 @@
 
 {#if menuOpen}
 	<div
-		class="fixed inset-0 z-[100] flex flex-col items-center
+		class="fixed inset-0 z-100 flex flex-col items-center
               justify-center gap-8 bg-white/95 backdrop-blur-xl md:hidden"
 	>
 		<!-- Botón cerrar -->
