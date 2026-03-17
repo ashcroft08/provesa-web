@@ -120,8 +120,11 @@
 					{historyTitle}
 				</h2>
 				<div class="space-y-6 text-lg leading-relaxed text-slate-600">
-					{#each historyParagraphs as paragraph}
-						<p>{@html paragraph}</p>
+					{#each historyParagraphs as paragraph, i (i)}
+						<p>
+							<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+							{@html paragraph}
+						</p>
 					{/each}
 				</div>
 			</div>
@@ -185,7 +188,7 @@
 							</div>
 						{/if}
 						{#if galleryImages[1]}
-							<div class="aspect-[3/4] overflow-hidden rounded-3xl border-4 border-white shadow-lg">
+							<div class="aspect-3/4 overflow-hidden rounded-3xl border-4 border-white shadow-lg">
 								<img
 									src={galleryImages[1].url}
 									alt={galleryImages[1].alt}
@@ -196,7 +199,7 @@
 					</div>
 					<div class="space-y-4">
 						{#if galleryImages[2]}
-							<div class="aspect-[3/4] overflow-hidden rounded-3xl border-4 border-white shadow-lg">
+							<div class="aspect-3/4 overflow-hidden rounded-3xl border-4 border-white shadow-lg">
 								<img
 									src={galleryImages[2].url}
 									alt={galleryImages[2].alt}

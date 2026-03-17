@@ -9,6 +9,7 @@
 		Briefcase,
 		MapPin
 	} from 'lucide-svelte';
+	import { base } from '$app/paths';
 
 	let { data, form } = $props();
 	let isSubmitting = $state(false);
@@ -74,13 +75,13 @@
 						Gracias por tu interés en formar parte del equipo PROVESA. Hemos recibido tu información
 						y te contactaremos cuando tengamos vacantes disponibles.
 					</p>
-					<a
-						href="/empleo"
+					<button
+						onclick={() => window.location.assign(`${base}/empleo`)}
 						class="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-primary/30 transition-all hover:scale-105 hover:bg-blue-800"
 					>
 						<Send size={16} />
 						Enviar otra postulación
-					</a>
+					</button>
 				</div>
 			{:else}
 				<h2 class="text-2xl font-extrabold text-slate-900">Formulario de Postulación</h2>
@@ -119,7 +120,7 @@
 								id="empleo-nombre"
 								name="nombre"
 								required
-								value={form?.nombre || ''}
+								value={form && 'nombre' in form ? form.nombre : ''}
 								class="w-full rounded-xl border-slate-200 bg-slate-50 p-3 text-sm transition-colors focus:border-primary focus:bg-white focus:ring-primary/20"
 								placeholder="Tu nombre completo"
 							/>
@@ -133,7 +134,7 @@
 								id="empleo-telefono"
 								name="telefono"
 								required
-								value={form?.telefono || ''}
+								value={form && 'telefono' in form ? form.telefono : ''}
 								class="w-full rounded-xl border-slate-200 bg-slate-50 p-3 text-sm transition-colors focus:border-primary focus:bg-white focus:ring-primary/20"
 								placeholder="099..."
 							/>
@@ -149,7 +150,7 @@
 							id="empleo-email"
 							name="email"
 							required
-							value={form?.email || ''}
+							value={form && 'email' in form ? form.email : ''}
 							class="w-full rounded-xl border-slate-200 bg-slate-50 p-3 text-sm transition-colors focus:border-primary focus:bg-white focus:ring-primary/20"
 							placeholder="ejemplo@correo.com"
 						/>
@@ -170,8 +171,10 @@
 							class="w-full rounded-xl border-slate-200 bg-slate-50 p-3 text-sm transition-colors focus:border-primary focus:bg-white focus:ring-primary/20"
 						>
 							<option value="" disabled selected>Selecciona una sucursal</option>
-							{#each data.sucursales || [] as suc}
-								<option value={suc.nombre} selected={form?.sucursal === suc.nombre}
+							{#each data.sucursales || [] as suc (suc.id || suc.nombre)}
+								<option
+									value={suc.nombre}
+									selected={form && 'sucursal' in form ? form.sucursal === suc.nombre : false}
 									>{suc.nombre}</option
 								>
 							{/each}
@@ -223,7 +226,8 @@
 							name="mensaje"
 							class="w-full rounded-xl border-slate-200 bg-slate-50 p-3 text-sm transition-colors focus:border-primary focus:bg-white focus:ring-primary/20"
 							rows="3"
-							placeholder="Cuéntanos sobre tu experiencia...">{form?.mensaje || ''}</textarea
+							placeholder="Cuéntanos sobre tu experiencia..."
+							>{form && 'mensaje' in form ? form.mensaje : ''}</textarea
 						>
 					</div>
 

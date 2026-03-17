@@ -1,4 +1,5 @@
 <script>
+	import { base } from '$app/paths';
 	let { data } = $props();
 	let page = $derived(data.legalPage);
 </script>
@@ -10,12 +11,12 @@
 <div class="min-h-screen bg-background">
 	<div class="mx-auto max-w-4xl px-6 pt-32 pb-20">
 		<div class="mb-4">
-			<a
-				href="/"
+			<button
+				onclick={() => window.location.assign(`${base}/`)}
 				class="inline-flex items-center gap-1 text-sm text-slate-400 transition-colors hover:text-primary"
 			>
 				← Volver al inicio
-			</a>
+			</button>
 		</div>
 
 		<article class="rounded-3xl border border-slate-100 bg-white p-10 shadow-sm md:p-16">
@@ -35,7 +36,7 @@
 
 			{#if page?.content}
 				<div class="prose prose-slate max-w-none text-slate-600">
-					{#each page.content.split('\n\n') as paragraph}
+					{#each page.content.split('\n\n') as paragraph, i (i)}
 						{#if paragraph.trim()}
 							<p class="mb-4 leading-relaxed">{paragraph.trim()}</p>
 						{/if}

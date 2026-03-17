@@ -5,6 +5,7 @@
 	import SugerenciasForm from '$lib/components/SugerenciasForm.svelte';
 	import RedesSociales from '$lib/components/RedesSociales.svelte';
 
+	/** @type {{ data: { slides: any[], products: any[], nosotros: any, sugOptions: string[], footer: any } }} */
 	let { data } = $props();
 </script>
 

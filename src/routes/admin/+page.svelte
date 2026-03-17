@@ -11,20 +11,20 @@
 	import SugerenciasTab from '$lib/components/admin/SugerenciasTab.svelte';
 	import PostulacionesTab from '$lib/components/admin/PostulacionesTab.svelte';
 	import ConfiguracionTab from '$lib/components/admin/ConfiguracionTab.svelte';
-	import PlaceholderTab from '$lib/components/admin/PlaceholderTab.svelte';
 	import ConcursosTab from '$lib/components/admin/ConcursosTab.svelte';
 
 	let { data, form } = $props();
 
-	// Estado para los colores del tema (se sincroniza con datos del servidor)
-	let theme = $state({ primary: '', secondary: '', accent: '', background: '' });
+	// Estado para los colores del tema (sincronizado con datos del servidor)
+	let theme = $state({ primary: '#000000', secondary: '#000000', accent: '#000000', background: '#ffffff' });
 
 	// Estado para la pestaña activa
 	let activeTab = $state('Dashboard');
 
-	// Sincronizar tema cuando el servidor devuelve datos (carga inicial + post-guardado)
 	$effect(() => {
-		theme = { ...data.theme };
+		if (data.theme) {
+			theme = { ...data.theme };
+		}
 	});
 
 	// Estado para el guardado
@@ -58,7 +58,7 @@
 	<AdminSidebar {navItems} bind:activeTab user={data.user} />
 
 	<!-- Main Content -->
-	<main class="min-h-screen flex-grow lg:ml-72">
+	<main class="min-h-screen grow lg:ml-72">
 		<header
 			class="sticky top-0 z-40 flex h-20 items-center justify-between border-b border-slate-100 bg-white/50 px-8 backdrop-blur-md"
 		>
@@ -70,29 +70,13 @@
 			</div>
 
 			<div class="flex items-center gap-6">
-				<div class="relative hidden sm:block">
-					<span
-						class="material-icons absolute top-1/2 left-3 -translate-y-1/2 text-lg text-slate-400"
-						>search</span
-					>
-					<input
-						type="text"
-						placeholder="Buscar apartado..."
-						class="w-64 rounded-xl border-none bg-slate-100 py-2 pr-4 pl-10 text-sm focus:ring-primary/20"
-					/>
-				</div>
-				<button class="relative rounded-xl p-2 text-slate-500 transition-colors hover:bg-slate-100">
-					<span class="material-icons">public</span>
-					<span
-						class="absolute top-2 right-2 h-2 w-2 rounded-full border-2 border-white bg-green-500"
-					></span>
-				</button>
+				<!-- Search and View Site buttons removed as per user request -->
 			</div>
 		</header>
 
 		<div class="p-8">
 			{#if activeTab === 'Dashboard'}
-				<DashboardTab />
+				<DashboardTab {data} bind:activeTab />
 			{:else if activeTab === 'Personalización'}
 				<PersonalizacionTab bind:theme bind:isSaving formResult={form} />
 			{:else if activeTab === 'Sliders'}

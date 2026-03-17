@@ -26,9 +26,16 @@
 
 	function resetNewConcurso() {
 		newConcurso = {
-			title: '', titleHighlight: '', description: '', imageUrl: '',
-			badgeText: 'Sorteo Activo', closeDate: '', prizeName: '',
-			ctaText: 'Ver Marcas Auspiciantes', disclaimer: '', isActive: false
+			title: '',
+			titleHighlight: '',
+			description: '',
+			imageUrl: '',
+			badgeText: 'Sorteo Activo',
+			closeDate: '',
+			prizeName: '',
+			ctaText: 'Ver Marcas Auspiciantes',
+			disclaimer: '',
+			isActive: false
 		};
 		uploadError = '';
 	}
@@ -48,34 +55,21 @@
 
 	function resetNewGanador() {
 		newGanador = {
-			concursoId: '', winnerName: '', prize: '',
-			testimonial: '', imageUrl: '', dateLabel: ''
+			concursoId: '',
+			winnerName: '',
+			prize: '',
+			testimonial: '',
+			imageUrl: '',
+			dateLabel: ''
 		};
 		uploadError = '';
 	}
 
 	// ─── Upload helpers ───
-	async function uploadImage(target = 'concurso') {
-		return async (file) => {
-			isUploading = true;
-			uploadError = '';
-			try {
-				const formData = new FormData();
-				formData.append('file', file);
-				const res = await fetch('/api/upload', { method: 'POST', body: formData });
-				const data = await res.json();
-				if (!res.ok) { uploadError = data.error || 'Error al subir'; return; }
-				if (target === 'concurso') newConcurso.imageUrl = data.url;
-				else if (target === 'ganador') newGanador.imageUrl = data.url;
-				return data.url;
-			} catch { uploadError = 'Error de conexión'; } finally { isUploading = false; }
-		};
-	}
-
 	let editConcursoImageUrl = $state('');
 	let editGanadorImageUrl = $state('');
 
-	async function doUpload(file) {
+	async function doUpload(/** @type {File} */ file) {
 		isUploading = true;
 		uploadError = '';
 		try {
@@ -83,29 +77,49 @@
 			formData.append('file', file);
 			const res = await fetch('/api/upload', { method: 'POST', body: formData });
 			const data = await res.json();
-			if (!res.ok) { uploadError = data.error || 'Error al subir'; return null; }
+			if (!res.ok) {
+				uploadError = data.error || 'Error al subir';
+				return null;
+			}
 			return data.url;
-		} catch { uploadError = 'Error de conexión'; return null; } finally { isUploading = false; }
+		} catch {
+			uploadError = 'Error de conexión';
+			return null;
+		} finally {
+			isUploading = false;
+		}
 	}
 
-	async function handleConcursoFileSelect(e) {
-		const file = e.target?.files?.[0];
-		if (file) { const url = await doUpload(file); if (url) newConcurso.imageUrl = url; }
+	async function handleConcursoFileSelect(/** @type {Event & { currentTarget: EventTarget & HTMLInputElement }} */ e) {
+		const file = e.currentTarget.files?.[0];
+		if (file) {
+			const url = await doUpload(file);
+			if (url) newConcurso.imageUrl = url;
+		}
 	}
 
-	async function handleEditConcursoFileSelect(e) {
-		const file = e.target?.files?.[0];
-		if (file) { const url = await doUpload(file); if (url) editConcursoImageUrl = url; }
+	async function handleEditConcursoFileSelect(/** @type {Event & { currentTarget: EventTarget & HTMLInputElement }} */ e) {
+		const file = e.currentTarget.files?.[0];
+		if (file) {
+			const url = await doUpload(file);
+			if (url) editConcursoImageUrl = url;
+		}
 	}
 
-	async function handleGanadorFileSelect(e) {
-		const file = e.target?.files?.[0];
-		if (file) { const url = await doUpload(file); if (url) newGanador.imageUrl = url; }
+	async function handleGanadorFileSelect(/** @type {Event & { currentTarget: EventTarget & HTMLInputElement }} */ e) {
+		const file = e.currentTarget.files?.[0];
+		if (file) {
+			const url = await doUpload(file);
+			if (url) newGanador.imageUrl = url;
+		}
 	}
 
-	async function handleEditGanadorFileSelect(e) {
-		const file = e.target?.files?.[0];
-		if (file) { const url = await doUpload(file); if (url) editGanadorImageUrl = url; }
+	async function handleEditGanadorFileSelect(/** @type {Event & { currentTarget: EventTarget & HTMLInputElement }} */ e) {
+		const file = e.currentTarget.files?.[0];
+		if (file) {
+			const url = await doUpload(file);
+			if (url) editGanadorImageUrl = url;
+		}
 	}
 
 	// ─── Active tab: concursos vs ganadores ───
@@ -113,6 +127,19 @@
 </script>
 
 <div in:fade={{ duration: 200 }} class="space-y-8">
+	<!-- Feedack message -->
+	{#if formResult}
+		<div
+			in:slide
+			class="flex items-center gap-3 rounded-2xl border p-4 text-sm font-bold {formResult.error
+				? 'border-red-100 bg-red-50 text-red-600'
+				: 'border-green-100 bg-green-50 text-green-600'}"
+		>
+			<span class="material-icons text-lg">{formResult.error ? 'error' : 'check_circle'}</span>
+			{formResult.error || 'Operación completada con éxito.'}
+		</div>
+	{/if}
+
 	<!-- Section toggle -->
 	<div class="flex gap-3">
 		<button
@@ -188,15 +215,10 @@
 					>
 						<!-- Image upload -->
 						<div>
-							<label class="mb-2 block text-xs font-bold text-slate-600">Imagen del concurso</label
-							>
+							<label for="newConcursoFile" class="mb-2 block text-xs font-bold text-slate-600">Imagen del concurso</label>
 							{#if newConcurso.imageUrl}
 								<div class="relative overflow-hidden rounded-2xl">
-									<img
-										src={newConcurso.imageUrl}
-										alt="Preview"
-										class="h-44 w-full object-cover"
-									/>
+									<img src={newConcurso.imageUrl} alt="Preview" class="h-44 w-full object-cover" />
 									<div
 										class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity hover:opacity-100"
 									>
@@ -216,7 +238,6 @@
 									</div>
 								</div>
 							{:else}
-								<!-- svelte-ignore a11y_no_static_element_interactions -->
 								<div
 									class="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-white p-10 transition-all hover:border-primary hover:bg-primary/5"
 									onclick={() => document.getElementById('newConcursoFile')?.click()}
@@ -245,6 +266,8 @@
 									onchange={handleConcursoFileSelect}
 								/>
 							{/if}
+							<!-- Hidden input to submit the uploaded Cloudinary URL directly -->
+							<input type="hidden" name="imageUrl" value={newConcurso.imageUrl} />
 						</div>
 
 						{#if uploadError}
@@ -257,91 +280,108 @@
 						<!-- Text fields -->
 						<div class="grid gap-4 md:grid-cols-2">
 							<div>
-								<label class="mb-1 block text-xs font-bold text-slate-600">Título principal</label>
-								<input
-									type="text"
-									name="title"
-									bind:value={newConcurso.title}
-									placeholder="Equipa tu Negocio"
-									class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm focus:ring-primary/20"
-								/>
+								<label class="mb-1 block text-xs font-bold text-slate-600">
+									Título principal
+									<input
+										type="text"
+										name="title"
+										bind:value={newConcurso.title}
+										placeholder="Equipa tu Negocio"
+										class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm focus:ring-primary/20"
+									/>
+								</label>
 							</div>
 							<div>
-								<label class="mb-1 block text-xs font-bold text-slate-600">Texto resaltado</label>
-								<input
-									type="text"
-									name="titleHighlight"
-									bind:value={newConcurso.titleHighlight}
-									placeholder="con Provesa"
-									class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm focus:ring-primary/20"
-								/>
-								<p class="mt-1 text-[10px] text-slate-400">Aparece en color primary debajo del título.</p>
+								<label class="mb-1 block text-xs font-bold text-slate-600">
+									Texto resaltado
+									<input
+										type="text"
+										name="titleHighlight"
+										bind:value={newConcurso.titleHighlight}
+										placeholder="con Provesa"
+										class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm focus:ring-primary/20"
+									/>
+								</label>
+								<p class="mt-1 text-[10px] text-slate-400">
+									Aparece en color primary debajo del título.
+								</p>
 							</div>
 						</div>
 
 						<div>
-							<label class="mb-1 block text-xs font-bold text-slate-600">Descripción</label>
-							<textarea
-								name="description"
-								rows="2"
-								bind:value={newConcurso.description}
-								placeholder="Por cada $150 en compras..."
-								class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm focus:ring-primary/20"
-							></textarea>
+							<label class="mb-1 block text-xs font-bold text-slate-600">
+								Descripción
+								<textarea
+									name="description"
+									rows="2"
+									bind:value={newConcurso.description}
+									placeholder="Por cada $150 en compras..."
+									class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm focus:ring-primary/20"
+								></textarea>
+							</label>
 						</div>
 
 						<div class="grid gap-4 md:grid-cols-3">
 							<div>
-								<label class="mb-1 block text-xs font-bold text-slate-600">Etiqueta</label>
-								<input
-									type="text"
-									name="badgeText"
-									bind:value={newConcurso.badgeText}
-									placeholder="Sorteo Activo"
-									class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm focus:ring-primary/20"
-								/>
+								<label class="mb-1 block text-xs font-bold text-slate-600">
+									Etiqueta
+									<input
+										type="text"
+										name="badgeText"
+										bind:value={newConcurso.badgeText}
+										placeholder="Sorteo Activo"
+										class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm focus:ring-primary/20"
+									/>
+								</label>
 							</div>
 							<div>
-								<label class="mb-1 block text-xs font-bold text-slate-600">Fecha de cierre</label>
-								<input
-									type="text"
-									name="closeDate"
-									bind:value={newConcurso.closeDate}
-									placeholder="30 Nov, 2026"
-									class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm focus:ring-primary/20"
-								/>
+								<label class="mb-1 block text-xs font-bold text-slate-600">
+									Fecha de cierre
+									<input
+										type="date"
+										name="closeDate"
+										bind:value={newConcurso.closeDate}
+										class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm focus:ring-primary/20"
+									/>
+								</label>
 							</div>
 							<div>
-								<label class="mb-1 block text-xs font-bold text-slate-600">Premio principal</label>
-								<input
-									type="text"
-									name="prizeName"
-									bind:value={newConcurso.prizeName}
-									placeholder="Combo Tech"
-									class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm focus:ring-primary/20"
-								/>
+								<label class="mb-1 block text-xs font-bold text-slate-600">
+									Premio principal
+									<input
+										type="text"
+										name="prizeName"
+										bind:value={newConcurso.prizeName}
+										placeholder="Combo Tech"
+										class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm focus:ring-primary/20"
+									/>
+								</label>
 							</div>
 						</div>
 
 						<div class="grid gap-4 md:grid-cols-2">
 							<div>
-								<label class="mb-1 block text-xs font-bold text-slate-600">Texto del botón</label>
-								<input
-									type="text"
-									name="ctaText"
-									bind:value={newConcurso.ctaText}
-									class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm focus:ring-primary/20"
-								/>
+								<label class="mb-1 block text-xs font-bold text-slate-600">
+									Texto del botón
+									<input
+										type="text"
+										name="ctaText"
+										bind:value={newConcurso.ctaText}
+										class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm focus:ring-primary/20"
+									/>
+								</label>
 							</div>
 							<div>
-								<label class="mb-1 block text-xs font-bold text-slate-600">Nota al pie</label>
-								<input
-									type="text"
-									name="disclaimer"
-									bind:value={newConcurso.disclaimer}
-									placeholder="* Válido para compras en..."
-									class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm focus:ring-primary/20"
-								/>
+								<label class="mb-1 block text-xs font-bold text-slate-600">
+									Nota al pie
+									<input
+										type="text"
+										name="disclaimer"
+										bind:value={newConcurso.disclaimer}
+										placeholder="* Válido para compras en..."
+										class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm focus:ring-primary/20"
+									/>
+								</label>
 							</div>
 						</div>
 
@@ -383,16 +423,16 @@
 					{#each concursos as c (c.id)}
 						<div
 							in:slide
-							class="group overflow-hidden rounded-2xl border border-slate-50 bg-[#F8FAFC] transition-all hover:shadow-lg hover:shadow-slate-100"
+							class="group overflow-hidden rounded-2xl border border-slate-50 bg-soft-gray transition-all hover:shadow-lg hover:shadow-slate-100"
 						>
 							<div class="flex items-center gap-4 p-4">
 								{#if c.imageUrl}
-									<div class="relative h-16 w-28 flex-shrink-0 overflow-hidden rounded-xl">
+									<div class="relative h-16 w-28 shrink-0 overflow-hidden rounded-xl">
 										<img src={c.imageUrl} alt={c.title} class="h-full w-full object-cover" />
 									</div>
 								{:else}
 									<div
-										class="flex h-16 w-28 flex-shrink-0 items-center justify-center rounded-xl bg-slate-200"
+										class="flex h-16 w-28 shrink-0 items-center justify-center rounded-xl bg-slate-200"
 									>
 										<span class="material-icons text-2xl text-slate-400">image</span>
 									</div>
@@ -400,9 +440,7 @@
 								<div class="min-w-0 flex-1">
 									<p class="truncate text-sm font-bold text-slate-800">
 										{c.title || '(Sin título)'}
-										{#if c.titleHighlight}<span class="text-primary">
-												{c.titleHighlight}</span
-											>{/if}
+										{#if c.titleHighlight}<span class="text-primary"> {c.titleHighlight}</span>{/if}
 									</p>
 									{#if c.prizeName}
 										<p class="mt-0.5 text-xs text-slate-400">Premio: {c.prizeName}</p>
@@ -474,7 +512,7 @@
 
 										<!-- Edit image -->
 										<div>
-											<label class="mb-1 block text-xs font-bold text-slate-600">Imagen</label>
+											<label for="editConcursoFile" class="mb-1 block text-xs font-bold text-slate-600">Imagen</label>
 											<div class="relative overflow-hidden rounded-2xl">
 												<img
 													src={editConcursoImageUrl || '/placeholder.png'}
@@ -491,6 +529,7 @@
 														{isUploading ? 'Subiendo...' : 'Cambiar'}
 														<input
 															type="file"
+															id="editConcursoFile"
 															name="image"
 															accept="image/*"
 															class="hidden"
@@ -503,94 +542,99 @@
 
 										<div class="grid gap-4 md:grid-cols-2">
 											<div>
-												<label class="mb-1 block text-xs font-bold text-slate-600">Título</label
-												>
-												<input
-													type="text"
-													name="title"
-													value={c.title}
-													class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm"
-												/>
+												<label class="mb-1 block text-xs font-bold text-slate-600">
+													Título
+													<input
+														type="text"
+														name="title"
+														value={c.title}
+														class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm"
+													/>
+												</label>
 											</div>
 											<div>
-												<label class="mb-1 block text-xs font-bold text-slate-600"
-													>Texto resaltado</label
-												>
-												<input
-													type="text"
-													name="titleHighlight"
-													value={c.titleHighlight}
-													class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm"
-												/>
+												<label class="mb-1 block text-xs font-bold text-slate-600">
+													Texto resaltado
+													<input
+														type="text"
+														name="titleHighlight"
+														value={c.titleHighlight}
+														class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm"
+													/>
+												</label>
 											</div>
 										</div>
 
 										<div>
-											<label class="mb-1 block text-xs font-bold text-slate-600">Descripción</label
-											>
-											<textarea
-												name="description"
-												rows="2"
-												value={c.description}
-												class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm"
-											></textarea>
+											<label class="mb-1 block text-xs font-bold text-slate-600">
+												Descripción
+												<textarea
+													name="description"
+													rows="2"
+													value={c.description}
+													class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm"
+												></textarea>
+											</label>
 										</div>
 
 										<div class="grid gap-4 md:grid-cols-3">
 											<div>
-												<label class="mb-1 block text-xs font-bold text-slate-600">Etiqueta</label
-												>
-												<input
-													type="text"
-													name="badgeText"
-													value={c.badgeText}
-													class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm"
-												/>
+												<label class="mb-1 block text-xs font-bold text-slate-600">
+													Etiqueta
+													<input
+														type="text"
+														name="badgeText"
+														value={c.badgeText}
+														class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm"
+													/>
+												</label>
 											</div>
 											<div>
-												<label class="mb-1 block text-xs font-bold text-slate-600"
-													>Fecha cierre</label
-												>
-												<input
-													type="text"
-													name="closeDate"
-													value={c.closeDate}
-													class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm"
-												/>
+												<label class="mb-1 block text-xs font-bold text-slate-600">
+													Fecha cierre
+													<input
+														type="date"
+														name="closeDate"
+														value={c.closeDate}
+														class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm"
+													/>
+												</label>
 											</div>
 											<div>
-												<label class="mb-1 block text-xs font-bold text-slate-600">Premio</label>
-												<input
-													type="text"
-													name="prizeName"
-													value={c.prizeName}
-													class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm"
-												/>
+												<label class="mb-1 block text-xs font-bold text-slate-600">
+													Premio
+													<input
+														type="text"
+														name="prizeName"
+														value={c.prizeName}
+														class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm"
+													/>
+												</label>
 											</div>
 										</div>
 
 										<div class="grid gap-4 md:grid-cols-2">
 											<div>
-												<label class="mb-1 block text-xs font-bold text-slate-600"
-													>Texto botón</label
-												>
-												<input
-													type="text"
-													name="ctaText"
-													value={c.ctaText}
-													class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm"
-												/>
+												<label class="mb-1 block text-xs font-bold text-slate-600">
+													Texto botón
+													<input
+														type="text"
+														name="ctaText"
+														value={c.ctaText}
+														class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm"
+													/>
+												</label>
 											</div>
 											<div>
-												<label class="mb-1 block text-xs font-bold text-slate-600"
-													>Nota al pie</label
-												>
-												<input
-													type="text"
-													name="disclaimer"
-													value={c.disclaimer}
-													class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm"
-												/>
+												<label class="mb-1 block text-xs font-bold text-slate-600">
+													Nota al pie
+													<input
+														type="text"
+														name="disclaimer"
+														value={c.disclaimer}
+														class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm"
+													/>
+												</label>
 											</div>
 										</div>
 
@@ -598,8 +642,7 @@
 											<label class="flex items-center gap-2 text-sm font-bold text-slate-600">
 												<input
 													type="checkbox"
-													checked={c.isActive}
-													onchange={(e) => {}}
+													bind:checked={c.isActive}
 													class="rounded border-slate-300 text-primary focus:ring-primary/20"
 												/>
 												Activo
@@ -686,14 +729,10 @@
 					>
 						<!-- Image upload -->
 						<div>
-							<label class="mb-2 block text-xs font-bold text-slate-600">Foto del ganador</label>
+							<label for="newGanadorFile" class="mb-2 block text-xs font-bold text-slate-600">Foto del ganador</label>
 							{#if newGanador.imageUrl}
 								<div class="relative h-44 overflow-hidden rounded-2xl">
-									<img
-										src={newGanador.imageUrl}
-										alt="Preview"
-										class="h-full w-full object-cover"
-									/>
+									<img src={newGanador.imageUrl} alt="Preview" class="h-full w-full object-cover" />
 									<div
 										class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity hover:opacity-100"
 									>
@@ -713,7 +752,6 @@
 									</div>
 								</div>
 							{:else}
-								<!-- svelte-ignore a11y_no_static_element_interactions -->
 								<div
 									class="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-white p-10 transition-all hover:border-primary hover:bg-primary/5"
 									onclick={() => document.getElementById('newGanadorFile')?.click()}
@@ -742,69 +780,78 @@
 									onchange={handleGanadorFileSelect}
 								/>
 							{/if}
+							<!-- Hidden input to submit the uploaded Cloudinary URL directly -->
+							<input type="hidden" name="imageUrl" value={newGanador.imageUrl} />
 						</div>
 
 						<!-- Concurso selector -->
 						<div>
-							<label class="mb-1 block text-xs font-bold text-slate-600">Concurso asociado</label>
-							<select
-								name="concursoId"
-								bind:value={newGanador.concursoId}
-								class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm focus:ring-primary/20"
-							>
-								<option value="">Sin concurso</option>
-								{#each concursos as c}
-									<option value={c.id}>{c.title} {c.titleHighlight || ''}</option>
-								{/each}
-							</select>
+							<label class="mb-1 block text-xs font-bold text-slate-600">
+								Concurso asociado
+								<select
+									name="concursoId"
+									bind:value={newGanador.concursoId}
+									class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm focus:ring-primary/20"
+								>
+									<option value="">Sin concurso</option>
+									{#each concursos as c (c.id)}
+										<option value={c.id}>{c.title} {c.titleHighlight || ''}</option>
+									{/each}
+								</select>
+							</label>
 						</div>
 
 						<div class="grid gap-4 md:grid-cols-2">
 							<div>
-								<label class="mb-1 block text-xs font-bold text-slate-600">Nombre del ganador</label
-								>
-								<input
-									type="text"
-									name="winnerName"
-									bind:value={newGanador.winnerName}
-									placeholder="D' Todo Market"
-									class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm focus:ring-primary/20"
-								/>
+								<label class="mb-1 block text-xs font-bold text-slate-600">
+									Nombre del ganador
+									<input
+										type="text"
+										name="winnerName"
+										bind:value={newGanador.winnerName}
+										placeholder="D' Todo Market"
+										class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm focus:ring-primary/20"
+									/>
+								</label>
 							</div>
 							<div>
-								<label class="mb-1 block text-xs font-bold text-slate-600">Premio ganado</label>
-								<input
-									type="text"
-									name="prize"
-									bind:value={newGanador.prize}
-									placeholder="Orden de Compra $300"
-									class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm focus:ring-primary/20"
-								/>
+								<label class="mb-1 block text-xs font-bold text-slate-600">
+									Premio ganado
+									<input
+										type="text"
+										name="prize"
+										bind:value={newGanador.prize}
+										placeholder="Orden de Compra $300"
+										class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm focus:ring-primary/20"
+									/>
+								</label>
 							</div>
 						</div>
 
 						<div class="grid gap-4 md:grid-cols-2">
 							<div>
-								<label class="mb-1 block text-xs font-bold text-slate-600">Testimonio</label>
-								<textarea
-									name="testimonial"
-									rows="2"
-									bind:value={newGanador.testimonial}
-									placeholder="Siempre compro aquí por el surtido..."
-									class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm focus:ring-primary/20"
-								></textarea>
+								<label class="mb-1 block text-xs font-bold text-slate-600">
+									Testimonio
+									<textarea
+										name="testimonial"
+										rows="2"
+										bind:value={newGanador.testimonial}
+										placeholder="Siempre compro aquí por el surtido..."
+										class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm focus:ring-primary/20"
+									></textarea>
+								</label>
 							</div>
 							<div>
-								<label class="mb-1 block text-xs font-bold text-slate-600"
-									>Etiqueta de fecha</label
-								>
-								<input
-									type="text"
-									name="dateLabel"
-									bind:value={newGanador.dateLabel}
-									placeholder="Octubre 2025"
-									class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm focus:ring-primary/20"
-								/>
+								<label class="mb-1 block text-xs font-bold text-slate-600">
+									Etiqueta de fecha
+									<input
+										type="text"
+										name="dateLabel"
+										bind:value={newGanador.dateLabel}
+										placeholder="Octubre 2025"
+										class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm focus:ring-primary/20"
+									/>
+								</label>
 								<p class="mt-1 text-[10px] text-slate-400">
 									Se muestra sobre la imagen en el carrusel.
 								</p>
@@ -830,29 +877,23 @@
 						<span class="material-icons text-4xl text-slate-300">military_tech</span>
 					</div>
 					<p class="text-sm font-bold text-slate-400">No hay ganadores registrados</p>
-					<p class="mt-1 text-xs text-slate-300">
-						Agrega ganadores para el carrusel de la página.
-					</p>
+					<p class="mt-1 text-xs text-slate-300">Agrega ganadores para el carrusel de la página.</p>
 				</div>
 			{:else}
 				<div class="space-y-4">
 					{#each ganadores as g (g.id)}
 						<div
 							in:slide
-							class="group overflow-hidden rounded-2xl border border-slate-50 bg-[#F8FAFC] transition-all hover:shadow-lg hover:shadow-slate-100"
+							class="group overflow-hidden rounded-2xl border border-slate-50 bg-soft-gray transition-all hover:shadow-lg hover:shadow-slate-100"
 						>
 							<div class="flex items-center gap-4 p-4">
 								{#if g.imageUrl}
-									<div class="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl">
-										<img
-											src={g.imageUrl}
-											alt={g.winnerName}
-											class="h-full w-full object-cover"
-										/>
+									<div class="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl">
+										<img src={g.imageUrl} alt={g.winnerName} class="h-full w-full object-cover" />
 									</div>
 								{:else}
 									<div
-										class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-xl bg-slate-200"
+										class="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-slate-200"
 									>
 										<span class="text-2xl">🏆</span>
 									</div>
@@ -923,7 +964,8 @@
 										<input type="hidden" name="id" value={g.id} />
 
 										<div>
-											<label class="mb-1 block text-xs font-bold text-slate-600">Foto</label>
+
+											<label for="editGanadorFile" class="mb-1 block text-xs font-bold text-slate-600">Foto</label>
 											<div class="relative h-32 overflow-hidden rounded-2xl">
 												<img
 													src={editGanadorImageUrl || '/placeholder.png'}
@@ -940,6 +982,7 @@
 														{isUploading ? 'Subiendo...' : 'Cambiar'}
 														<input
 															type="file"
+															id="editGanadorFile"
 															name="image"
 															accept="image/*"
 															class="hidden"
@@ -951,63 +994,68 @@
 										</div>
 
 										<div>
-											<label class="mb-1 block text-xs font-bold text-slate-600"
-												>Concurso asociado</label
-											>
-											<select
-												name="concursoId"
-												value={g.concursoId}
-												class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm"
-											>
-												<option value="">Sin concurso</option>
-												{#each concursos as c}
-													<option value={c.id}>{c.title} {c.titleHighlight || ''}</option>
-												{/each}
-											</select>
+											<label class="mb-1 block text-xs font-bold text-slate-600">
+												Concurso asociado
+												<select
+													name="concursoId"
+													value={g.concursoId}
+													class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm"
+												>
+													<option value="">Sin concurso</option>
+													{#each concursos as c (c.id)}
+														<option value={c.id}>{c.title} {c.titleHighlight || ''}</option>
+													{/each}
+												</select>
+											</label>
 										</div>
 
 										<div class="grid gap-4 md:grid-cols-2">
 											<div>
-												<label class="mb-1 block text-xs font-bold text-slate-600">Nombre</label
-												>
-												<input
-													type="text"
-													name="winnerName"
-													value={g.winnerName}
-													class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm"
-												/>
+												<label class="mb-1 block text-xs font-bold text-slate-600">
+													Nombre
+													<input
+														type="text"
+														name="winnerName"
+														value={g.winnerName}
+														class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm"
+													/>
+												</label>
 											</div>
 											<div>
-												<label class="mb-1 block text-xs font-bold text-slate-600">Premio</label>
-												<input
-													type="text"
-													name="prize"
-													value={g.prize}
-													class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm"
-												/>
+												<label class="mb-1 block text-xs font-bold text-slate-600">
+													Premio
+													<input
+														type="text"
+														name="prize"
+														value={g.prize}
+														class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm"
+													/>
+												</label>
 											</div>
 										</div>
 
 										<div class="grid gap-4 md:grid-cols-2">
 											<div>
-												<label class="mb-1 block text-xs font-bold text-slate-600"
-													>Testimonio</label
-												>
-												<textarea
-													name="testimonial"
-													rows="2"
-													value={g.testimonial}
-													class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm"
-												></textarea>
+												<label class="mb-1 block text-xs font-bold text-slate-600">
+													Testimonio
+													<textarea
+														name="testimonial"
+														rows="2"
+														value={g.testimonial}
+														class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm"
+													></textarea>
+												</label>
 											</div>
 											<div>
-												<label class="mb-1 block text-xs font-bold text-slate-600">Fecha</label>
-												<input
-													type="text"
-													name="dateLabel"
-													value={g.dateLabel}
-													class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm"
-												/>
+												<label class="mb-1 block text-xs font-bold text-slate-600">
+													Fecha
+													<input
+														type="text"
+														name="dateLabel"
+														value={g.dateLabel}
+														class="mt-1 w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm"
+													/>
+												</label>
 											</div>
 										</div>
 

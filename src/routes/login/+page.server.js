@@ -1,6 +1,5 @@
 import { auth } from '$lib/server/auth';
 import { redirect, fail } from '@sveltejs/kit';
-import { APIError } from 'better-auth';
 
 export const load = async (event) => {
     // Si el usuario ya está logueado, lo mandamos al inicio

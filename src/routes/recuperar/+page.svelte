@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import logo from '$lib/assets/images/provesa-logo.png';
 	import { ArrowLeft, Mail, Send } from 'lucide-svelte';
+	import { base } from '$app/paths';
 
 	// Svelte 5: Usamos descargas de props sutiles
 	let { form } = $props();
@@ -47,12 +48,12 @@
 						Si existe una cuenta asociada a <strong>{email}</strong>, recibirás un enlace de
 						recuperación pronto.
 					</p>
-					<a
-						href="/login"
+					<button
+						onclick={() => window.location.assign(`${base}/login`)}
 						class="mt-6 inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline"
 					>
 						<ArrowLeft size={16} /> Volver al login
-					</a>
+					</button>
 				</div>
 			{:else}
 				<!-- Formulario -->
@@ -107,13 +108,13 @@
 					</button>
 
 					<div class="mt-4 text-center">
-						<a
-							href="/login"
+						<button
+							onclick={() => window.location.assign(`${base}/login`)}
 							class="group inline-flex items-center gap-2 text-slate-400 transition-colors hover:text-primary"
 						>
 							<ArrowLeft size={14} class="transition-transform group-hover:-translate-x-1" />
 							<span class="text-xs font-bold">Volver al login</span>
-						</a>
+						</button>
 					</div>
 				</form>
 			{/if}
@@ -142,14 +143,5 @@
 			radial-gradient(at 0% 0%, hsla(210, 100%, 94%, 0.7) 0, transparent 50%),
 			radial-gradient(at 50% 0%, hsla(208, 100%, 92%, 0.7) 0, transparent 50%),
 			radial-gradient(at 100% 0%, hsla(210, 100%, 94%, 0.7) 0, transparent 50%);
-	}
-
-	.input-focus {
-		transition: all 0.3s ease;
-	}
-
-	.input-focus:focus {
-		transform: translateY(-1px);
-		box-shadow: 0 10px 20px -5px rgba(0, 82, 165, 0.1);
 	}
 </style>

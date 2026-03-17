@@ -2,6 +2,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import { Facebook, Instagram, Music2, Phone as WhatsApp, ArrowRight } from 'lucide-svelte';
 
+	/** @type {{ footer: { facebookUrl?: string | null, instagramUrl?: string | null, tiktokUrl?: string | null, whatsappUrl?: string | null } | null }} */
 	let { footer } = $props();
 
 	// Fallback links si no están en la BD
@@ -43,10 +44,12 @@
 		}
 	]);
 
+	/** @type {string | null} */
 	let hovered = $state(null);
 	let isVisible = $state(false); // Estado para controlar cuándo se ve la sección
 
 	// Acción de Svelte para detectar cuando el elemento entra en pantalla
+	/** @param {HTMLElement} element */
 	function viewport(element) {
 		const observer = new IntersectionObserver(
 			(entries) => {
@@ -107,16 +110,14 @@
 				</div>
 
 				<div class="grid grid-cols-2 gap-8 sm:flex sm:items-center sm:gap-6 lg:gap-8">
-					{#each socialLinks as link, i}
+					{#each socialLinks as link, i (link.id)}
 						{@const Icon = link.icon}
 						<div
 							class="flex flex-col items-center gap-3"
 							in:fly={{ y: 30, delay: 150 * i, duration: 600 }}
 						>
-							<a
-								href={link.url}
-								target="_blank"
-								rel="noopener noreferrer"
+							<button
+								onclick={() => window.open(link.url, '_blank', 'noopener,noreferrer')}
 								aria-label={`Visitar nuestro perfil de ${link.name}`}
 								onmouseenter={() => (hovered = link.id)}
 								onmouseleave={() => (hovered = null)}
@@ -139,7 +140,7 @@
 								<div
 									class="absolute inset-0 scale-0 rounded-full bg-white/20 opacity-0 transition-all duration-700 group-hover:scale-150 group-hover:opacity-100"
 								></div>
-							</a>
+							</button>
 
 							<!-- Label -->
 							<div class="h-4 overflow-visible text-center">

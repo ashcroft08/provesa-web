@@ -2,8 +2,9 @@
 	import { enhance } from '$app/forms';
 	import logo from '$lib/assets/images/provesa-logo.png';
 	import { ArrowLeft, Lock, Save, CheckCircle, Eye, EyeOff } from 'lucide-svelte';
+	import { base } from '$app/paths';
 
-	let { form, data } = $props();
+	let { form } = $props();
 	let password = $state('');
 	let confirmPassword = $state('');
 	let loading = $state(false);
@@ -81,12 +82,12 @@
 					<p class="mt-2 text-sm text-green-700">
 						Tu contraseña ha sido actualizada correctamente. Ya puedes acceder al panel.
 					</p>
-					<a
-						href="/login"
+					<button
+						onclick={() => window.location.assign(`${base}/login`)}
 						class="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-bold text-white transition-all hover:brightness-90"
 					>
 						Ir al Login
-					</a>
+					</button>
 				</div>
 			{:else}
 				<form
@@ -239,13 +240,13 @@
 					</button>
 
 					<div class="mt-4 text-center">
-						<a
-							href="/login"
+						<button
+							onclick={() => window.location.assign(`${base}/login`)}
 							class="group inline-flex items-center gap-1.5 text-slate-400 transition-colors hover:text-primary"
 						>
 							<ArrowLeft size={14} class="transition-transform group-hover:-translate-x-1" />
 							<span class="text-xs font-semibold">Cancelar y volver</span>
-						</a>
+						</button>
 					</div>
 				</form>
 			{/if}

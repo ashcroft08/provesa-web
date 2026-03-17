@@ -1,24 +1,22 @@
 <script>
 	import { onMount } from 'svelte';
-	import { Calendar, Gift, ChevronLeft, ChevronRight } from 'lucide-svelte';
+	import { Calendar, Gift, ChevronLeft, ChevronRight, Sparkles } from 'lucide-svelte';
 
 	let { data } = $props();
 
 	let concurso = $derived(data.concurso);
 	let ganadores = $derived(data.ganadores || []);
 
-	let carousel;
+	/** @type {HTMLDivElement | undefined} */
+	let carousel = $state();
 	let isPaused = false;
 	let scrollAmount = 1;
 	const cardWidth = 350 + 24;
 
 	onMount(() => {
 		if (carousel && ganadores.length > 0) {
-			// Duplicar contenido para scroll infinito
-			carousel.innerHTML += carousel.innerHTML;
-
 			const autoScroll = () => {
-				if (!isPaused) {
+				if (!isPaused && carousel) {
 					carousel.scrollLeft += scrollAmount;
 					if (carousel.scrollLeft >= carousel.scrollWidth / 2) {
 						carousel.scrollLeft = 0;
@@ -37,7 +35,7 @@
 		carousel.style.scrollBehavior = 'smooth';
 		carousel.scrollLeft += cardWidth;
 		setTimeout(() => {
-			carousel.style.scrollBehavior = 'auto';
+			if (carousel) carousel.style.scrollBehavior = 'auto';
 			isPaused = false;
 		}, 500);
 	}
@@ -51,12 +49,14 @@
 			carousel.scrollLeft = carousel.scrollWidth / 2;
 		}
 		requestAnimationFrame(() => {
-			carousel.style.scrollBehavior = 'smooth';
-			carousel.scrollLeft -= cardWidth;
-			setTimeout(() => {
-				carousel.style.scrollBehavior = 'auto';
-				isPaused = false;
-			}, 500);
+			if (carousel) {
+				carousel.style.scrollBehavior = 'smooth';
+				carousel.scrollLeft -= cardWidth;
+				setTimeout(() => {
+					if (carousel) carousel.style.scrollBehavior = 'auto';
+					isPaused = false;
+				}, 500);
+			}
 		});
 	}
 </script>
@@ -64,27 +64,6 @@
 <svelte:head>
 	<title>Concursos y Ganadores - PROVESA SCC</title>
 </svelte:head>
-
-<style>
-	.hide-scrollbar::-webkit-scrollbar {
-		display: none;
-	}
-	.hide-scrollbar {
-		-ms-overflow-style: none;
-		scrollbar-width: none;
-	}
-
-	.carousel-mask {
-		mask-image: linear-gradient(to right, transparent 0, black 10%, black 90%, transparent 100%);
-		-webkit-mask-image: linear-gradient(
-			to right,
-			transparent 0,
-			black 10%,
-			black 90%,
-			transparent 100%
-		);
-	}
-</style>
 
 <div class="font-display bg-white text-slate-900 antialiased">
 	<section class="relative overflow-hidden bg-white pt-32 pb-24">
@@ -120,7 +99,7 @@
 							<div class="absolute inset-0 bg-black/10"></div>
 							{#if concurso.badgeText}
 								<div
-									class="bg-accent-red absolute top-6 left-6 rounded px-4 py-2 text-[10px] font-bold tracking-widest text-white uppercase shadow-sm sm:text-xs"
+									class="absolute top-6 left-6 rounded bg-accent-red px-4 py-2 text-[10px] font-bold tracking-widest text-white uppercase shadow-sm sm:text-xs"
 								>
 									{concurso.badgeText}
 								</div>
@@ -136,6 +115,7 @@
 							</h3>
 							{#if concurso.description}
 								<p class="mb-8 text-lg leading-relaxed text-slate-500">
+									<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 									{@html concurso.description}
 								</p>
 							{/if}
@@ -143,26 +123,22 @@
 							<div class="mb-10 grid grid-cols-2 gap-4">
 								{#if concurso.closeDate}
 									<div class="rounded-xl border border-slate-100 bg-slate-50 p-5">
-										<Calendar size={32} class="text-primary mb-2" />
+										<Calendar size={32} class="mb-2 text-primary" />
 										<span
 											class="mb-1 block text-xs font-bold tracking-wider text-slate-400 uppercase"
 											>Cierre</span
 										>
-										<span class="block text-lg font-bold text-slate-800"
-											>{concurso.closeDate}</span
-										>
+										<span class="block text-lg font-bold text-slate-800">{concurso.closeDate}</span>
 									</div>
 								{/if}
 								{#if concurso.prizeName}
 									<div class="rounded-xl border border-slate-100 bg-slate-50 p-5">
-										<Gift size={32} class="text-accent-yellow mb-2" />
+										<Gift size={32} class="mb-2 text-accent-yellow" />
 										<span
 											class="mb-1 block text-xs font-bold tracking-wider text-slate-400 uppercase"
 											>Premio Principal</span
 										>
-										<span class="block text-lg font-bold text-slate-800"
-											>{concurso.prizeName}</span
-										>
+										<span class="block text-lg font-bold text-slate-800">{concurso.prizeName}</span>
 									</div>
 								{/if}
 							</div>
@@ -170,7 +146,7 @@
 							<div>
 								{#if concurso.ctaText}
 									<button
-										class="bg-primary w-full rounded-xl px-8 py-4 text-center font-bold text-white shadow-sm transition-colors hover:bg-blue-800 sm:w-auto"
+										class="w-full rounded-xl bg-primary px-8 py-4 text-center font-bold text-white shadow-sm transition-colors hover:bg-blue-800 sm:w-auto"
 									>
 										{concurso.ctaText}
 									</button>
@@ -185,8 +161,31 @@
 					</div>
 				</div>
 			{:else}
-				<div class="mb-24 rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-16 text-center">
-					<p class="text-lg text-slate-400">No hay concursos activos en este momento.</p>
+				<div
+					class="relative mx-auto mb-24 max-w-4xl overflow-hidden rounded-3xl border border-slate-100 bg-linear-to-br from-slate-50 to-white p-10 text-center shadow-lg shadow-slate-200/50 sm:p-16"
+				>
+					<!-- Decorative background blurs -->
+					<div
+						class="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-primary/20 opacity-50 mix-blend-multiply blur-3xl"
+					></div>
+					<div
+						class="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-accent-yellow/20 opacity-50 mix-blend-multiply blur-3xl"
+					></div>
+
+					<div class="relative z-10 flex flex-col items-center justify-center">
+						<div
+							class="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-xl shadow-slate-200/50"
+						>
+							<Sparkles size={36} class="animate-pulse text-primary" />
+						</div>
+						<h3 class="mb-4 text-3xl font-black tracking-tight text-slate-900 md:text-4xl">
+							¡Nuevos sorteos muy pronto!
+						</h3>
+						<p class="mx-auto max-w-lg text-lg leading-relaxed text-slate-600">
+							Actualmente estamos preparando increíbles promociones para nuestra comunidad. Mantente
+							al tanto para descubrir cómo puedes ganar.
+						</p>
+					</div>
 				</div>
 			{/if}
 
@@ -224,10 +223,12 @@
 							ontouchstart={() => (isPaused = true)}
 							ontouchend={() => setTimeout(() => (isPaused = false), 1000)}
 							class="hide-scrollbar flex w-full cursor-grab gap-6 overflow-x-auto pt-4 pb-8 active:cursor-grabbing"
+							role="list"
+							aria-label="Galería de ganadores"
 						>
-							{#each ganadores as ganador}
+							{#each [...ganadores, ...ganadores] as ganador, i (i)}
 								<div
-									class="w-[320px] flex-shrink-0 overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-lg transition-transform hover:-translate-y-2 md:w-[350px]"
+									class="w-[320px] shrink-0 overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-lg transition-transform hover:-translate-y-2 md:w-[350px]"
 								>
 									<div class="relative h-48 overflow-hidden">
 										{#if ganador.imageUrl}
@@ -243,7 +244,7 @@
 										{/if}
 										{#if ganador.dateLabel}
 											<span
-												class="text-primary absolute top-4 left-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold tracking-widest uppercase shadow-sm backdrop-blur-sm"
+												class="absolute top-4 left-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold tracking-widest text-primary uppercase shadow-sm backdrop-blur-sm"
 												>{ganador.dateLabel}</span
 											>
 										{/if}
@@ -251,7 +252,7 @@
 									<div class="p-6">
 										<h4 class="mb-1 text-xl font-bold text-slate-900">{ganador.winnerName}</h4>
 										{#if ganador.prize}
-											<p class="text-accent-red mb-4 text-sm font-semibold">{ganador.prize}</p>
+											<p class="mb-4 text-sm font-semibold text-accent-red">{ganador.prize}</p>
 										{/if}
 										{#if ganador.testimonial}
 											<p class="text-sm text-slate-500 italic">"{ganador.testimonial}"</p>
@@ -266,3 +267,24 @@
 		</div>
 	</section>
 </div>
+
+<style>
+	.hide-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
+	.hide-scrollbar {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+
+	.carousel-mask {
+		mask-image: linear-gradient(to right, transparent 0, black 10%, black 90%, transparent 100%);
+		-webkit-mask-image: linear-gradient(
+			to right,
+			transparent 0,
+			black 10%,
+			black 90%,
+			transparent 100%
+		);
+	}
+</style>

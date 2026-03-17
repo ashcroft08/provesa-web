@@ -1,6 +1,7 @@
 <script>
 	import { page } from '$app/state';
 	import logo from '$lib/assets/images/provesa-logo.png';
+	import { base } from '$app/paths';
 </script>
 
 <div
@@ -21,10 +22,10 @@
 		</p>
 	</div>
 
-	<a
-		href="/"
+	<button
+		onclick={() => window.location.assign(`${base}/`)}
 		class="mt-10 rounded-xl bg-primary px-8 py-3 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95"
 	>
 		Volver al Inicio
-	</a>
+	</button>
 </div>

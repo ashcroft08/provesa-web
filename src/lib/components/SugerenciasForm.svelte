@@ -2,11 +2,20 @@
 	import { enhance } from '$app/forms';
 	import { MessageSquareText, Send, User, ChevronDown } from 'lucide-svelte';
 
+	/** @type {{ tipos?: string[] }} */
 	let {
 		tipos = ['Sugerencia de Servicio', 'Nuevo Producto Requerido', 'Reclamo', 'Felicitación']
 	} = $props();
 
-	let tipo = $state(tipos[0]);
+	let tipo = $state('');
+
+	// Sincronizamos tipo inicial cuando carga la prop
+	$effect(() => {
+		if (!tipo && tipos && tipos.length > 0) {
+			tipo = tipos[0];
+		}
+	});
+
 	let nombre = $state('');
 	let mensaje = $state('');
 	let enviado = $state(false);
@@ -22,10 +31,10 @@
 <section id="sugerencias" class="relative overflow-hidden bg-white py-24 md:py-32">
 	<!-- Decoraciones -->
 	<div
-		class="pointer-events-none absolute -top-32 -right-32 h-80 w-80 rounded-full bg-primary/[0.03] blur-3xl"
+		class="pointer-events-none absolute -top-32 -right-32 h-80 w-80 rounded-full bg-primary/3 blur-3xl"
 	></div>
 	<div
-		class="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-secondary/[0.05] blur-3xl"
+		class="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-secondary/5 blur-3xl"
 	></div>
 
 	<div class="mx-auto max-w-3xl px-6 lg:px-8">
@@ -95,9 +104,8 @@
 							<ChevronDown size={14} class="text-primary" />
 							Tipo de mensaje
 						</label>
-						<!-- svelte-ignore a11y_click_events_have_key_events -->
-						<!-- svelte-ignore a11y_no_static_element_interactions -->
-						<button
+					<!-- eslint-disable-next-line svelte/a11y-click-events-have-key-events, svelte/a11y-no-static-element-interactions -->
+					<button
 							id="sugTipo"
 							type="button"
 							onclick={() => (dropdownOpen = !dropdownOpen)}
@@ -112,12 +120,15 @@
 						</button>
 
 						{#if dropdownOpen}
-							<!-- svelte-ignore a11y_no_static_element_interactions -->
-							<div class="fixed inset-0 z-10" onclick={() => (dropdownOpen = false)}></div>
+							<button 
+								class="fixed inset-0 z-10 w-full h-full cursor-default bg-transparent" 
+								onclick={() => (dropdownOpen = false)}
+								aria-label="Cerrar selección"
+							></button>
 							<div
 								class="absolute top-full left-0 z-20 mt-2 w-full overflow-hidden rounded-xl border border-slate-100 bg-white py-1 shadow-xl shadow-slate-200/50"
 							>
-								{#each tipos as t}
+								{#each tipos as t (t)}
 									<button
 										type="button"
 										onclick={() => selectTipo(t)}
@@ -173,10 +184,10 @@
 				<!-- Botón -->
 				<button
 					type="submit"
-					disabled={!mensaje.trim()}
+					disabled={!mensaje.trim() || isSubmitting}
 					class="group flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:scale-[1.01] hover:shadow-xl active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
 				>
-					Enviar Sugerencia
+					{isSubmitting ? 'Enviando...' : 'Enviar Sugerencia'}
 					<Send size={16} class="transition-transform group-hover:translate-x-1" />
 				</button>
 

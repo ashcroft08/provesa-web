@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import logo from '$lib/assets/images/provesa-logo.png';
 	import { ArrowLeft, Mail, Lock, LogIn } from 'lucide-svelte';
+	import { base } from '$app/paths';
 
 	let { form } = $props();
 	let email = $state('');
@@ -107,12 +108,12 @@
 				</div>
 
 				<div class="text-right">
-					<a
-						href="/recuperar"
+					<button
+						onclick={() => window.location.assign(`${base}/recuperar`)}
 						class="text-xs font-semibold text-primary/70 transition-colors hover:text-primary"
 					>
 						¿Olvidaste tu contraseña?
-					</a>
+					</button>
 				</div>
 
 				<button
@@ -127,13 +128,13 @@
 				</button>
 
 				<div class="mt-4 text-center">
-					<a
-						href="/"
+					<button
+						onclick={() => window.location.assign(`${base}/`)}
 						class="group inline-flex items-center gap-2 text-slate-400 transition-colors hover:text-primary"
 					>
 						<ArrowLeft size={14} class="transition-transform group-hover:-translate-x-1" />
 						<span class="text-xs font-bold">Volver al sitio principal</span>
-					</a>
+					</button>
 				</div>
 			</form>
 		</div>
