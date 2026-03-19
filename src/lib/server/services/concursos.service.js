@@ -4,54 +4,39 @@ import { uploadRepository } from '$lib/server/repositories/upload.repository.js'
 export const concursosService = {
 	// ─── Datos públicos ───
 
-	/** 
-	 * Retorna la información del concurso activo y la lista total de ganadores.
-	 * @returns {Promise<{concurso: Object|null, ganadores: Array<Object>}>}
-	 */
+	/** Retorna el concurso activo + sus ganadores para la página pública */
 	async getPublicData() {
- 		const concurso = /** @type {any} */ (await concursosRepository.getActive());
- 
- 		// Auto-hide if active but closeDate has already passed
- 		if (concurso && concurso.closeDate) {
- 			const today = new Date();
- 			today.setHours(0, 0, 0, 0);
- 			const close = new Date(concurso.closeDate + 'T00:00:00');
- 			if (close < today) {
- 				// Ensure the database eventually catches up
- 				await concursosRepository.update(concurso.id, { isActive: false });
- 				return { concurso: null, ganadores: await concursosRepository.getAllGanadores() };
- 			}
- 		}
- 
- 		/** @type {any[]} */
- 		const ganadores = await concursosRepository.getAllGanadores();
- 
- 		return { concurso, ganadores };
- 	},
+		let concurso = await concursosRepository.getActive();
+
+		// Auto-hide if active but closeDate has already passed
+		if (concurso && concurso.closeDate) {
+			const today = new Date();
+			today.setHours(0, 0, 0, 0);
+			const close = new Date(concurso.closeDate + 'T00:00:00');
+			if (close < today) {
+				// Ensure the database eventually catches up
+				await concursosRepository.update(concurso.id, { isActive: false });
+				concurso = null;
+			}
+		}
+
+		/** @type {Awaited<ReturnType<typeof concursosRepository.getAllGanadores>>} */
+		const ganadores = await concursosRepository.getAllGanadores();
+
+		return { concurso, ganadores };
+	},
 
 	// ─── Admin: Concursos ───
 
-	/** 
-	 * Obtiene todos los concursos registrados.
-	 * @returns {Promise<Array<Object>>}
-	 */
 	async getAllConcursos() {
 		return concursosRepository.getAll();
 	},
 
-	/** 
-	 * Obtiene la lista de todos los ganadores.
-	 * @returns {Promise<Array<Object>>}
-	 */
 	async getAllGanadores() {
 		return concursosRepository.getAllGanadores();
 	},
 
-	/** 
-	 * Procesa y crea un nuevo concurso desde un FormData.
-	 * @param {FormData} formData - Datos del formulario.
-	 * @returns {Promise<Object>}
-	 */
+	/** @param {FormData} formData */
 	async addConcurso(formData) {
 		const imageFile = /** @type {File|null} */ (formData.get('image'));
 		let imageUrl = formData.get('imageUrl')?.toString() || '';
@@ -77,8 +62,8 @@ export const concursosService = {
 		}
 
 		// Calcular sortOrder
- 		const existing = /** @type {any[]} */ (await concursosRepository.getAll());
- 		const sortOrder = existing.length > 0 ? Math.max(...existing.map((c) => c.sortOrder)) + 1 : 0;
+		const existing = await concursosRepository.getAll();
+		const sortOrder = existing.length > 0 ? Math.max(...existing.map((c) => c.sortOrder)) + 1 : 0;
 
 		return concursosRepository.create({
 			title: formData.get('title')?.toString() || '',
@@ -95,11 +80,10 @@ export const concursosService = {
 		});
 	},
 
-	/** 
-	 * Actualiza los datos de un concurso existente.
-	 * @param {number} id - ID del concurso.
-	 * @param {FormData} formData - Nuevos datos.
-	 */
+	/**
+     * @param {number} id
+     * @param {FormData} formData
+     */
     async updateConcurso(id, formData) {
 		// Auto-deactivate if closeDate is before today
 		let closeDate = formData.get('closeDate')?.toString() || '';
@@ -138,21 +122,14 @@ export const concursosService = {
 		return concursosRepository.update(id, data);
 	},
 
-	/** 
-	 * Elimina un concurso por su ID.
-	 * @param {number} id - ID del concurso.
-	 */
+	/** @param {number} id */
 	async deleteConcurso(id) {
 		return concursosRepository.remove(id);
 	},
 
 	// ─── Admin: Ganadores ───
 
-	/** 
-	 * Registra un nuevo ganador.
-	 * @param {FormData} formData - Datos del ganador.
-	 * @returns {Promise<Object>}
-	 */
+	/** @param {FormData} formData */
     async addGanador(formData) {
 		const imageFile = /** @type {File|null} */ (formData.get('image'));
 		let imageUrl = formData.get('imageUrl')?.toString() || '';
@@ -165,8 +142,8 @@ export const concursosService = {
 		}
 
 		// Calcular sortOrder
- 		const existing = /** @type {any[]} */ (await concursosRepository.getAllGanadores());
- 		const sortOrder = existing.length > 0 ? Math.max(...existing.map((g) => g.sortOrder)) + 1 : 0;
+		const existing = await concursosRepository.getAllGanadores();
+		const sortOrder = existing.length > 0 ? Math.max(...existing.map((g) => g.sortOrder)) + 1 : 0;
 
 		const concursoId = parseInt(formData.get('concursoId')?.toString() || '0') || null;
 
@@ -187,11 +164,9 @@ export const concursosService = {
 		return newGanador;
 	},
 
-	/** 
-	 * Actualiza los datos de un ganador.
-	 * @param {number} id - ID del ganador record.
-	 * @param {FormData} formData - Datos a actualizar.
-	 * @returns {Promise<Object>}
+	/**
+	 * @param {number} id
+	 * @param {FormData} formData
 	 */
 	async updateGanador(id, formData) {
 		const concursoId = parseInt(formData.get('concursoId')?.toString() || '0') || null;
@@ -222,10 +197,7 @@ export const concursosService = {
 		return updatedGanador;
 	},
 
-	/** 
-	 * Elimina un registro de ganador por ID.
-	 * @param {number} id - ID del registro.
-	 */
+	/** @param {number} id */
 	async deleteGanador(id) {
 		return concursosRepository.removeGanador(id);
 	}

@@ -145,15 +145,18 @@
 					<p class="text-[10px] text-slate-400">Color base de las secciones de la página.</p>
 				</div>
 
-				<!-- Color Hover Navbar -->
+				<!-- Color Navbar Hover -->
 				<div
 					class="group space-y-3 rounded-3xl border border-slate-50 bg-soft-gray p-6 transition-all hover:bg-white hover:shadow-lg hover:shadow-slate-100"
 				>
 					<div class="flex items-center justify-between">
 						<label for="navbarHover" class="text-sm font-bold text-slate-800"
-							>Color Hover Navbar</label
+							>Color de Navbar (Hover)</label
 						>
-						<div class="h-3 w-3 rounded-full ring-4 ring-slate-100" style="background-color: {theme.navbarHover}"></div>
+						<div 
+							class="h-3 w-3 rounded-full ring-4 ring-slate-100"
+							style:background-color={theme.navbarHover === 'var(--color-primary)' ? theme.primary : theme.navbarHover}
+						></div>
 					</div>
 					<div class="flex items-center gap-4">
 						<input
@@ -171,7 +174,7 @@
 							/>
 						</div>
 					</div>
-					<p class="text-[10px] text-slate-400">Color que aparece al pasar el mouse por el menú.</p>
+					<p class="text-[10px] text-slate-400">Color al pasar el mouse por los links del menú superior.</p>
 				</div>
 			</div>
 

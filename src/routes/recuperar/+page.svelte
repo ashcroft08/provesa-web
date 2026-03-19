@@ -3,6 +3,7 @@
 	import logo from '$lib/assets/images/provesa-logo.png';
 	import { ArrowLeft, Mail, Send } from 'lucide-svelte';
 	import { base } from '$app/paths';
+	import Seo from '$lib/components/Seo.svelte';
 
 	// Svelte 5: Usamos descargas de props sutiles
 	let { form } = $props();
@@ -12,9 +13,7 @@
 	let loading = $state(false);
 </script>
 
-<svelte:head>
-	<title>Recuperar Contraseña - PROVESA SCC</title>
-</svelte:head>
+<Seo title="Recuperar Contraseña" noindex={true} />
 
 <div
 	class="bg-mesh relative flex h-screen w-full items-center justify-center overflow-hidden p-6 antialiased"

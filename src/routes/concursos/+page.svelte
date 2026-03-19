@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { Calendar, Gift, ChevronLeft, ChevronRight, Sparkles } from 'lucide-svelte';
-	import SEO from '$lib/components/SEO.svelte';
+	import Seo from '$lib/components/Seo.svelte';
 
 	let { data } = $props();
 
@@ -62,9 +62,9 @@
 	}
 </script>
 
-<SEO 
-	title="Concursos y Ganadores - Premiamos tu Lealtad"
-	description="Participa en nuestros concursos y gana premios increíbles para tu negocio. Conoce a nuestros ganadores y únete a la comunidad PROVESA."
+<Seo 
+	title="Concursos y Ganadores" 
+	description="Participe en nuestros concursos y conozca a los ganadores de la comunidad PROVESA. Premiamos la lealtad de nuestros socios mayoristas con incentivos reales."
 />
 
 <div class="font-display bg-white text-slate-900 antialiased">

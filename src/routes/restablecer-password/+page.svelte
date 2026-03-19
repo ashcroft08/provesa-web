@@ -3,6 +3,7 @@
 	import logo from '$lib/assets/images/provesa-logo.png';
 	import { ArrowLeft, Lock, Save, CheckCircle, Eye, EyeOff } from 'lucide-svelte';
 	import { base } from '$app/paths';
+	import Seo from '$lib/components/Seo.svelte';
 
 	let { form } = $props();
 	let password = $state('');
@@ -45,9 +46,7 @@
 	let isAllValid = $derived(hasMinLength && hasUppercase && hasNumber && hasSpecial);
 </script>
 
-<svelte:head>
-	<title>Nueva Contraseña - PROVESA SCC</title>
-</svelte:head>
+<Seo title="Nueva Contraseña" noindex={true} />
 
 <div
 	class="bg-mesh relative flex h-screen w-full items-center justify-center overflow-hidden p-4 antialiased sm:p-6"

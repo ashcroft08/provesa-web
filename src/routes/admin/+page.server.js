@@ -74,7 +74,7 @@ export const actions = {
 		if (!locals.session) return fail(401);
 		const formData = await request.formData();
 		try {
-			await themeService.updateThemeColors({
+			themeService.updateThemeColors({
 				primary: formData.get('primary')?.toString(),
 				secondary: formData.get('secondary')?.toString(),
 				accent: formData.get('accent')?.toString(),

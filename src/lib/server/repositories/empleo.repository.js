@@ -3,37 +3,22 @@ import { empleoSucursales } from '$lib/server/db/schema';
 import { eq, asc } from 'drizzle-orm';
 
 export const empleoRepository = {
-    /** 
-     * Obtiene todas las sucursales de empleo registradas.
-     * @returns {Promise<Array<Object>>}
-     */
+    /** Obtiene todas las sucursales de empleo ordenadas por nombre */
     async getAll() {
         return await db.select().from(empleoSucursales).orderBy(asc(empleoSucursales.nombre));
     },
 
-    /** 
-     * Filtra y devuelve solo las sucursales que están marcadas como activas.
-     * @returns {Promise<Array<Object>>}
-     */
+    /** Obtiene solo las sucursales activas */
     async getActive() {
         return await db.select().from(empleoSucursales).where(eq(empleoSucursales.activa, true));
     },
 
-    /** 
-     * Crea una nueva vacante o sucursal por su nombre.
-     * @param {string} nombre - Nombre de la sucursal/vacante.
-     * @returns {Promise<void>}
-     */
+    /** Crea una nueva sucursal */
     async create(nombre) {
         await db.insert(empleoSucursales).values({ nombre });
     },
 
-    /** 
-     * Cambia el estado de activación de una sucursal.
-     * @param {number} id - ID de la sucursal.
-     * @param {boolean} activa - Nuevo estado.
-     * @returns {Promise<void>}
-     */
+    /** Activa o desactiva una sucursal */
     async toggleActive(id, activa) {
         await db
             .update(empleoSucursales)
@@ -41,11 +26,7 @@ export const empleoRepository = {
             .where(eq(empleoSucursales.id, id));
     },
 
-    /** 
-     * Elimina una sucursal del listado por su ID.
-     * @param {number} id - ID de la sucursal.
-     * @returns {Promise<void>}
-     */
+    /** Elimina una sucursal por ID */
     async remove(id) {
         await db.delete(empleoSucursales).where(eq(empleoSucursales.id, id));
     }

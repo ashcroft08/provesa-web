@@ -3,11 +3,7 @@ import { pageViews } from '$lib/server/db/schemas/analytics.schema';
 import { sql } from 'drizzle-orm';
 
 export const analyticsService = {
-	/** 
-	 * Registra una visita a una ruta específica.
-	 * @param {string} path - La ruta visitada (ej: '/nosotros').
-	 * @returns {Promise<void>}
-	 */
+	/** @param {string} path */
 	async trackView(path) {
 		try {
 			// Upsert logic: insert or increment if exists
@@ -21,14 +17,10 @@ export const analyticsService = {
 					}
 				});
 		} catch (e) {
-			console.error('Error tracking view:', /** @type {any} */ (e));
+			console.error('Error tracking view:', e);
 		}
 	},
 
-	/**
-	 * Obtiene las estadísticas de visitas.
-	 * @returns {Promise<{totalViews: number, byPage: Array<{path: string, count: number, lastVisit: Date}>}>}
-	 */
 	async getStats() {
 		try {
 			// Verificamos si la tabla existe primero para evitar errores fatales en el dashboard
@@ -40,7 +32,7 @@ export const analyticsService = {
 			};
 		} catch (e) {
 			// Si la tabla no existe o hay error de permisos, devolvemos datos vacíos
-			console.warn('Analytics mapping failed (possibly table not created yet):', /** @type {any} */ (e).message);
+			console.warn('Analytics mapping failed (possibly table not created yet):', e.message);
 			return { totalViews: 0, byPage: [] };
 		}
 	}

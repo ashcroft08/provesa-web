@@ -2,7 +2,10 @@
 	import { page } from '$app/state';
 	import logo from '$lib/assets/images/provesa-logo.png';
 	import { base } from '$app/paths';
+	import Seo from '$lib/components/Seo.svelte';
 </script>
+
+<Seo title="Error {page.status}" noindex={true} />
 
 <div
 	class="flex min-h-screen flex-col items-center justify-center bg-background p-6 text-center antialiased"

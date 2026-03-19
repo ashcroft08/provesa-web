@@ -2,24 +2,15 @@ import { postulacionesRepository } from '../repositories/postulaciones.repositor
 import { uploadRepository } from '../repositories/upload.repository.js';
 
 export const postulacionesService = {
-    /** 
-     * Obtiene el listado completo de postulaciones de empleo.
-     * @returns {Promise<Array<Object>>}
-     */
+    /** Obtiene todas las postulaciones */
     async getAll() {
         return await postulacionesRepository.getAll();
     },
 
-    /** 
-     * Crea una nueva postulación y gestiona la subida del CV a Cloudinary.
-     * @param {Object} data - Datos personales y mensaje.
-     * @param {string} data.nombre - Nombre del candidato.
-     * @param {string} data.telefono - Teléfono.
-     * @param {string} data.email - Correo.
-     * @param {string} data.sucursal - Sucursal a la que aplica.
-     * @param {string} [data.mensaje] - Mensaje opcional.
-     * @param {File|null} cvFile - Archivo del CV.
-     * @returns {Promise<void>}
+    /**
+     * Crea una nueva postulación, subiendo CV a Cloudinary si se proporciona
+     * @param {object} data - Datos de la postulación
+     * @param {File|null} cvFile - Archivo CV (opcional)
      */
     async create({ nombre, telefono, email, sucursal, mensaje }, cvFile) {
         let cvUrl = null;
@@ -36,11 +27,7 @@ export const postulacionesService = {
         });
     },
 
-    /** 
-     * Elimina una postulación del sistema por su ID.
-     * @param {string} id - ID de la postulación (UUID).
-     * @returns {Promise<void>}
-     */
+    /** Elimina una postulación por ID */
     async delete(id) {
         await postulacionesRepository.remove(id);
     }

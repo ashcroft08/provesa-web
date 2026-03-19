@@ -1,21 +1,15 @@
 <script>
-	/**
-	 * @component SugerenciasForm
-	 * Formulario de contacto y sugerencias con validación en el lado del cliente y del servidor.
-	 * Utiliza Svelte Actions (enhance) para una experiencia SPA sin refrescos.
-	 */
 	import { enhance } from '$app/forms';
 	import { MessageSquareText, Send, User, ChevronDown } from 'lucide-svelte';
 
 	/** @type {{ tipos?: string[] }} */
 	let {
-		/** @type {string[]} Opciones dinámicas para el desplegable de tipos de mensaje. */
 		tipos = ['Sugerencia de Servicio', 'Nuevo Producto Requerido', 'Reclamo', 'Felicitación']
 	} = $props();
 
 	let tipo = $state('');
 
-	// Sincronizamos el primer tipo disponible como valor por defecto al montar
+	// Sincronizamos tipo inicial cuando carga la prop
 	$effect(() => {
 		if (!tipo && tipos && tipos.length > 0) {
 			tipo = tipos[0];
@@ -27,31 +21,8 @@
 	let enviado = $state(false);
 	let isSubmitting = $state(false);
 	let dropdownOpen = $state(false);
-	let errors = $state({ mensaje: '' });
 
-	/** 
-	 * Valida el estado actual del formulario antes de enviar.
-	 * @returns {boolean}
-	 */
-	function validate() {
-		let valid = true;
-		if (!mensaje.trim()) {
-			errors.mensaje = 'El mensaje es obligatorio';
-			valid = false;
-		} else if (mensaje.length > 500) {
-			errors.mensaje = 'El mensaje no puede exceder los 500 caracteres';
-			valid = false;
-		} else {
-			errors.mensaje = '';
-		}
-		return valid;
-	}
-
-	/**
-	 * Cambia el tipo seleccionado y cierra el dropdown personalizado.
-	 * @param {string} t
-	 */
-	function selectTipo(t) {
+	function selectTipo(/** @type {string} */ t) {
 		tipo = t;
 		dropdownOpen = false;
 	}
@@ -105,8 +76,7 @@
 			<form
 				method="POST"
 				action="?/enviarSugerencia"
-				use:enhance={({ cancel }) => {
-					if (!validate()) return cancel();
+				use:enhance={() => {
 					isSubmitting = true;
 					return async ({ update, result }) => {
 						isSubmitting = false;
@@ -116,7 +86,6 @@
 								enviado = false;
 								nombre = '';
 								mensaje = '';
-								errors.mensaje = '';
 							}, 3000);
 						}
 						await update({ reset: false });
@@ -207,19 +176,9 @@
 						bind:value={mensaje}
 						rows="4"
 						placeholder="Escriba aquí sus comentarios o sugerencias..."
-						class="w-full resize-none rounded-xl border bg-white px-4 py-3 text-sm transition-all focus:ring-2 focus:ring-primary/20
-						{errors.mensaje ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'}"
+						class="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
 					></textarea>
-					<div class="mt-1 flex justify-between gap-2">
-						{#if errors.mensaje}
-							<p class="text-[10px] font-bold text-red-500">{errors.mensaje}</p>
-						{:else}
-							<span></span>
-						{/if}
-						<p class="text-[10px] text-slate-400 {mensaje.length > 450 ? 'text-accent-red font-bold' : ''}">
-							{mensaje.length}/500
-						</p>
-					</div>
+					<p class="mt-1 text-right text-[10px] text-slate-400">{mensaje.length}/500</p>
 				</div>
 
 				<!-- Botón -->

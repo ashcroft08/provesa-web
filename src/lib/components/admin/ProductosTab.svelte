@@ -1,59 +1,16 @@
 <script>
-	/**
-	 * @component ProductosTab
-	 * Panel de administración para la gestión de productos del catálogo.
-	 * Maneja:
-	 * 1. CRUD de productos con persistencia en BD via Drizzle.
-	 * 2. Subida de múltiples imágenes a Cloudinary (vía API interna /api/upload).
-	 * 3. Gestión de listas dinámicas (Características y Categorías) almacenadas como JSON.
-	 * 4. Control de estados de edición y carga.
-	 */
 	import { enhance } from '$app/forms';
 	import { fade, slide } from 'svelte/transition';
 
-	/**
-	 * @typedef {Object} ProductFeature
-	 * @property {string} title
-	 * @property {string} desc
-	 */
+	let { products = $bindable(), formResult } = $props();
 
-	/**
-	 * @typedef {Object} ProductCategory
-	 * @property {string} num
-	 * @property {string} name
-	 * @property {string} desc
-	 */
-
-	/**
-	 * @typedef {Object} Product
-	 * @property {number} [id]
-	 * @property {string} name
-	 * @property {string} description
-	 * @property {string} align
-	 * @property {string} accentColor
-	 * @property {string} displayType
-	 * @property {string[]} images
-	 * @property {ProductFeature[]} features
-	 * @property {ProductCategory[]} categories
-	 */
-
-	let { 
-		/** @type {Product[]} */
-		products = $bindable(),
-		/** @type {any} */
-		formResult = null
-	} = $props();
-
-	// Estados de UI
 	let showAddForm = $state(false);
-	/** @type {number|null} */
 	let editingId = $state(null);
 	let isSubmitting = $state(false);
 	let isUploading = $state(false);
 	let uploadError = $state('');
 
-	// Estado inicial para nuevos productos
-	/** @type {Product} */
+	// Nuevo producto
 	let newProduct = $state({
 		name: '',
 		description: '',
@@ -80,23 +37,16 @@
 	}
 
 	// Editar: datos del producto que se está editando
-	/** @type {Product|null} */
 	let editData = $state(null);
 
-	/**
-	 * Activa el modo edición para un producto específico.
-	 * Realiza una copia profunda de los arrays de imágenes, características y categorías
-	 * para evitar mutaciones directas antes de guardar.
-	 * @param {Product} product
-	 */
 	function startEdit(product) {
-		editingId = product.id ?? null;
+		editingId = product.id;
 		editData = {
-			name: product.name || '',
-			description: product.description || '',
-			align: product.align || 'left',
-			accentColor: product.accentColor || 'primary',
-			displayType: product.displayType || 'features',
+			name: product.name,
+			description: product.description,
+			align: product.align,
+			accentColor: product.accentColor,
+			displayType: product.displayType,
 			images: [...(product.images || [])],
 			features: product.features?.length
 				? product.features.map((f) => ({ ...f }))
@@ -107,12 +57,7 @@
 		};
 	}
 
-	/** 
-	 * Sube un archivo a Cloudinary usando el endpoint de API local.
-	 * El target determina si la URL resultante va a 'newProduct' o a 'editData'.
-	 * @param {File} file
-	 * @param {'new'|'edit'} target
-	 */
+	// Upload de imagen
 	async function uploadImage(file, target = 'new') {
 		isUploading = true;
 		uploadError = '';
@@ -137,10 +82,6 @@
 		}
 	}
 
-	/**
-	 * @param {'new'|'edit'} target
-	 * @param {number} index
-	 */
 	function removeImage(target, index) {
 		if (target === 'new') {
 			newProduct.images = newProduct.images.filter((_, i) => i !== index);
@@ -150,20 +91,14 @@
 	}
 
 	// Helpers para features/categories
-	/** @param {'new'|'edit'} target */
 	function addFeature(target) {
 		if (target === 'new') newProduct.features = [...newProduct.features, { title: '', desc: '' }];
 		else if (editData) editData.features = [...editData.features, { title: '', desc: '' }];
 	}
-	/**
-	 * @param {'new'|'edit'} target
-	 * @param {number} i
-	 */
 	function removeFeature(target, i) {
 		if (target === 'new') newProduct.features = newProduct.features.filter((_, j) => j !== i);
 		else if (editData) editData.features = editData.features.filter((_, j) => j !== i);
 	}
-	/** @param {'new'|'edit'} target */
 	function addCategory(target) {
 		const num = String(
 			(target === 'new' ? newProduct.categories.length : editData?.categories?.length || 0) + 1
@@ -172,10 +107,6 @@
 			newProduct.categories = [...newProduct.categories, { num, name: '', desc: '' }];
 		else if (editData) editData.categories = [...editData.categories, { num, name: '', desc: '' }];
 	}
-	/**
-	 * @param {'new'|'edit'} target
-	 * @param {number} i
-	 */
 	function removeCategory(target, i) {
 		if (target === 'new') newProduct.categories = newProduct.categories.filter((_, j) => j !== i);
 		else if (editData) editData.categories = editData.categories.filter((_, j) => j !== i);
@@ -208,28 +139,8 @@
 			</div>
 		</div>
 
-		<!-- Info cuando está vacío o hay resultado del formulario -->
-		{#if formResult?.success}
-			<div in:slide class="mb-6 rounded-2xl border border-green-100 bg-green-50/50 p-5">
-				<div class="flex items-start gap-3">
-					<span class="material-icons text-green-400">check_circle</span>
-					<div class="text-sm text-green-700">
-						<p class="font-bold">¡Operación exitosa!</p>
-						<p class="mt-1 text-green-600">Los cambios se han guardado correctamente.</p>
-					</div>
-				</div>
-			</div>
-		{:else if formResult?.error}
-			<div in:slide class="mb-6 rounded-2xl border border-red-100 bg-red-50/50 p-5">
-				<div class="flex items-start gap-3">
-					<span class="material-icons text-red-400">error</span>
-					<div class="text-sm text-red-700">
-						<p class="font-bold">Error en la operación</p>
-						<p class="mt-1 text-red-600">{formResult.error}</p>
-					</div>
-				</div>
-			</div>
-		{:else if products.length === 0 && !showAddForm}
+		<!-- Info cuando está vacío -->
+		{#if products.length === 0 && !showAddForm}
 			<div class="mb-6 rounded-2xl border border-blue-100 bg-blue-50/50 p-5">
 				<div class="flex items-start gap-3">
 					<span class="material-icons text-blue-400">info</span>
@@ -283,7 +194,7 @@
 									id="newProdName"
 									bind:value={newProduct.name}
 									placeholder="Arroz Premium Salguero"
-									class="w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm focus:ring-primary/20"
+									class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm focus:ring-primary/20"
 								/>
 							</div>
 							<div>
@@ -296,7 +207,7 @@
 									bind:value={newProduct.description}
 									maxlength="250"
 									placeholder="Breve descripción del producto..."
-									class="w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm focus:ring-primary/20"
+									class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm focus:ring-primary/20"
 								></textarea>
 								<p class="mt-1 text-[10px] text-slate-400">{newProduct.description.length}/250</p>
 							</div>
@@ -309,7 +220,7 @@
 							Imágenes del carrusel
 						</p>
 						<div class="flex flex-wrap gap-3">
-							{#each newProduct.images as img, j (img)}
+							{#each newProduct.images as img, j}
 								<div class="group/img relative h-20 w-28 overflow-hidden rounded-xl">
 									<img src={img} alt="Img {j + 1}" class="h-full w-full object-cover" />
 									<button
@@ -321,6 +232,7 @@
 									</button>
 								</div>
 							{/each}
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								class="flex h-20 w-28 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-slate-200 transition-all hover:border-primary hover:bg-primary/5"
 								onclick={() => document.getElementById('newProdImage')?.click()}
@@ -343,7 +255,7 @@
 							accept="image/*"
 							class="hidden"
 							onchange={(e) => {
-								const f = (/** @type {HTMLInputElement} */ (e.target)).files?.[0];
+								const f = e.target?.files?.[0];
 								if (f) uploadImage(f, 'new');
 							}}
 						/>
@@ -355,8 +267,8 @@
 						<p class="mb-3 text-xs font-bold tracking-wider text-slate-400 uppercase">Diseño</p>
 						<div class="grid gap-4 md:grid-cols-3">
 							<div>
-								<label for="newProdAlign" class="mb-1 block text-xs font-bold text-slate-600">Posición imagen</label>
-								<div id="newProdAlign" class="flex gap-2">
+								<label class="mb-1 block text-xs font-bold text-slate-600">Posición imagen</label>
+								<div class="flex gap-2">
 									<button
 										type="button"
 										onclick={() => (newProduct.align = 'left')}
@@ -380,8 +292,8 @@
 								</div>
 							</div>
 							<div>
-								<label for="newProdAccent" class="mb-1 block text-xs font-bold text-slate-600">Color acento</label>
-								<div id="newProdAccent" class="flex gap-2">
+								<label class="mb-1 block text-xs font-bold text-slate-600">Color acento</label>
+								<div class="flex gap-2">
 									<button
 										type="button"
 										onclick={() => (newProduct.accentColor = 'primary')}
@@ -405,8 +317,8 @@
 								</div>
 							</div>
 							<div>
-								<label for="newProdDisplay" class="mb-1 block text-xs font-bold text-slate-600">Tipo de detalle</label>
-								<div id="newProdDisplay" class="flex gap-2">
+								<label class="mb-1 block text-xs font-bold text-slate-600">Tipo de detalle</label>
+								<div class="flex gap-2">
 									<button
 										type="button"
 										onclick={() => (newProduct.displayType = 'features')}
@@ -446,20 +358,20 @@
 								>
 							</div>
 							<div class="space-y-3">
-								{#each newProduct.features as feat, j (j)}
+								{#each newProduct.features as feat, j}
 									<div class="flex items-start gap-2">
 										<div class="grid flex-1 gap-2 md:grid-cols-2">
 											<input
 												type="text"
 												bind:value={feat.title}
 												placeholder="Título"
-												class="rounded-lg border-slate-200 bg-soft-gray p-2 text-sm"
+												class="rounded-lg border-slate-200 bg-[#F8FAFC] p-2 text-sm"
 											/>
 											<input
 												type="text"
 												bind:value={feat.desc}
 												placeholder="Descripción corta"
-												class="rounded-lg border-slate-200 bg-soft-gray p-2 text-sm"
+												class="rounded-lg border-slate-200 bg-[#F8FAFC] p-2 text-sm"
 											/>
 										</div>
 										{#if newProduct.features.length > 1}
@@ -484,25 +396,25 @@
 								>
 							</div>
 							<div class="space-y-3">
-								{#each newProduct.categories as cat, j (j)}
+								{#each newProduct.categories as cat, j}
 									<div class="flex items-start gap-2">
 										<input
 											type="text"
 											bind:value={cat.num}
-											class="w-14 rounded-lg border-slate-200 bg-soft-gray p-2 text-center text-sm font-bold"
+											class="w-14 rounded-lg border-slate-200 bg-[#F8FAFC] p-2 text-center text-sm font-bold"
 										/>
 										<div class="grid flex-1 gap-2 md:grid-cols-2">
 											<input
 												type="text"
 												bind:value={cat.name}
 												placeholder="Nombre"
-												class="rounded-lg border-slate-200 bg-soft-gray p-2 text-sm"
+												class="rounded-lg border-slate-200 bg-[#F8FAFC] p-2 text-sm"
 											/>
 											<input
 												type="text"
 												bind:value={cat.desc}
 												placeholder="Descripción"
-												class="rounded-lg border-slate-200 bg-soft-gray p-2 text-sm"
+												class="rounded-lg border-slate-200 bg-[#F8FAFC] p-2 text-sm"
 											/>
 										</div>
 										{#if newProduct.categories.length > 1}
@@ -565,17 +477,17 @@
 				{#each products as p, i (p.id)}
 					<div
 						in:slide
-						class="group overflow-hidden rounded-2xl border border-slate-50 bg-soft-gray transition-all hover:shadow-lg"
+						class="group overflow-hidden rounded-2xl border border-slate-50 bg-[#F8FAFC] transition-all hover:shadow-lg"
 					>
 						<div class="flex items-center gap-4 p-4">
 							<!-- Thumbnail -->
 							{#if p.images?.length}
-								<div class="h-16 w-24 shrink-0 overflow-hidden rounded-xl">
+								<div class="h-16 w-24 flex-shrink-0 overflow-hidden rounded-xl">
 									<img src={p.images[0]} alt={p.name} class="h-full w-full object-cover" />
 								</div>
 							{:else}
 								<div
-									class="flex h-16 w-24 shrink-0 items-center justify-center rounded-xl bg-slate-100"
+									class="flex h-16 w-24 flex-shrink-0 items-center justify-center rounded-xl bg-slate-100"
 								>
 									<span class="material-icons text-2xl text-slate-300">image</span>
 								</div>
@@ -618,11 +530,7 @@
 								<form
 									method="POST"
 									action="?/deleteProduct"
-									use:enhance={() => {
-										return async ({ update }) => {
-											await update();
-										};
-									}}
+									use:enhance={() => ({ update: async ({ update }) => await update() })}
 								>
 									<input type="hidden" name="productId" value={p.id} />
 									<button
@@ -657,30 +565,28 @@
 
 									<div class="grid gap-3 md:grid-cols-2">
 										<div>
-											<label for="editProdName_{p.id}" class="mb-1 block text-xs font-bold text-slate-600">Nombre</label>
+											<label class="mb-1 block text-xs font-bold text-slate-600">Nombre</label>
 											<input
 												type="text"
-												id="editProdName_{p.id}"
 												bind:value={editData.name}
-												class="w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm"
+												class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm"
 											/>
 										</div>
 										<div>
-											<label for="editProdDesc_{p.id}" class="mb-1 block text-xs font-bold text-slate-600">Descripción</label>
+											<label class="mb-1 block text-xs font-bold text-slate-600">Descripción</label>
 											<input
 												type="text"
-												id="editProdDesc_{p.id}"
 												bind:value={editData.description}
-												class="w-full rounded-xl border-slate-200 bg-soft-gray p-3 text-sm"
+												class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-3 text-sm"
 											/>
 										</div>
 									</div>
 
 									<!-- Imágenes -->
 									<div>
-										<label for="editProdImages_{p.id}" class="mb-1 block text-xs font-bold text-slate-600">Imágenes</label>
-										<div id="editProdImages_{p.id}" class="flex flex-wrap gap-2">
-											{#each editData.images as img, j (img)}
+										<label class="mb-1 block text-xs font-bold text-slate-600">Imágenes</label>
+										<div class="flex flex-wrap gap-2">
+											{#each editData.images as img, j}
 												<div class="group/img relative h-16 w-24 overflow-hidden rounded-lg">
 													<img src={img} alt="Img" class="h-full w-full object-cover" />
 													<button
@@ -692,9 +598,10 @@
 													</button>
 												</div>
 											{/each}
+											<!-- svelte-ignore a11y_no_static_element_interactions -->
 											<div
 												class="flex h-16 w-24 cursor-pointer items-center justify-center rounded-lg border border-dashed border-slate-200 hover:border-primary"
-												onclick={() => document.getElementById(`editProdImage_${p.id}`)?.click()}
+												onclick={() => document.getElementById('editProdImage')?.click()}
 												onkeydown={() => {}}
 												role="button"
 												tabindex="0"
@@ -704,11 +611,11 @@
 										</div>
 										<input
 											type="file"
-											id="editProdImage_{p.id}"
+											id="editProdImage"
 											accept="image/*"
 											class="hidden"
 											onchange={(e) => {
-												const f = (/** @type {HTMLInputElement} */ (e.target)).files?.[0];
+												const f = e.target?.files?.[0];
 												if (f) uploadImage(f, 'edit');
 											}}
 										/>
@@ -717,33 +624,30 @@
 									<!-- Config -->
 									<div class="grid gap-3 md:grid-cols-3">
 										<div>
-											<label for="editProdAlign_{p.id}" class="mb-1 block text-xs font-bold text-slate-600">Posición</label>
+											<label class="mb-1 block text-xs font-bold text-slate-600">Posición</label>
 											<select
-												id="editProdAlign_{p.id}"
 												bind:value={editData.align}
-												class="w-full rounded-xl border-slate-200 bg-soft-gray p-2 text-sm"
+												class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-2 text-sm"
 											>
 												<option value="left">Imagen izquierda</option>
 												<option value="right">Imagen derecha</option>
 											</select>
 										</div>
 										<div>
-											<label for="editProdAccent_{p.id}" class="mb-1 block text-xs font-bold text-slate-600">Color</label>
+											<label class="mb-1 block text-xs font-bold text-slate-600">Color</label>
 											<select
-												id="editProdAccent_{p.id}"
 												bind:value={editData.accentColor}
-												class="w-full rounded-xl border-slate-200 bg-soft-gray p-2 text-sm"
+												class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-2 text-sm"
 											>
 												<option value="primary">Azul</option>
 												<option value="accent">Rojo</option>
 											</select>
 										</div>
 										<div>
-											<label for="editProdType_{p.id}" class="mb-1 block text-xs font-bold text-slate-600">Tipo</label>
+											<label class="mb-1 block text-xs font-bold text-slate-600">Tipo</label>
 											<select
-												id="editProdType_{p.id}"
 												bind:value={editData.displayType}
-												class="w-full rounded-xl border-slate-200 bg-soft-gray p-2 text-sm"
+												class="w-full rounded-xl border-slate-200 bg-[#F8FAFC] p-2 text-sm"
 											>
 												<option value="features">Características</option>
 												<option value="categories">Categorías</option>
@@ -755,83 +659,79 @@
 									{#if editData.displayType === 'features'}
 										<div>
 											<div class="mb-2 flex items-center justify-between">
-												<label for="editProdFeatures_{p.id}" class="text-xs font-bold text-slate-600">Características</label>
+												<label class="text-xs font-bold text-slate-600">Características</label>
 												<button
 													type="button"
 													onclick={() => addFeature('edit')}
 													class="text-xs font-bold text-primary hover:underline">+ Agregar</button
 												>
 											</div>
-											<div id="editProdFeatures_{p.id}">
-												{#each editData.features as feat, j (j)}
-													<div class="mb-2 flex items-center gap-2">
-														<input
-															type="text"
-															bind:value={feat.title}
-															placeholder="Título"
-															class="flex-1 rounded-lg border-slate-200 bg-soft-gray p-2 text-sm"
-														/>
-														<input
-															type="text"
-															bind:value={feat.desc}
-															placeholder="Descripción"
-															class="flex-1 rounded-lg border-slate-200 bg-soft-gray p-2 text-sm"
-														/>
-														{#if editData.features.length > 1}
-															<button
-																type="button"
-																onclick={() => removeFeature('edit', j)}
-																class="text-slate-300 hover:text-red-400"
-															>
-																<span class="material-icons text-sm">close</span>
-															</button>
-														{/if}
-													</div>
-												{/each}
-											</div>
+											{#each editData.features as feat, j}
+												<div class="mb-2 flex items-center gap-2">
+													<input
+														type="text"
+														bind:value={feat.title}
+														placeholder="Título"
+														class="flex-1 rounded-lg border-slate-200 bg-[#F8FAFC] p-2 text-sm"
+													/>
+													<input
+														type="text"
+														bind:value={feat.desc}
+														placeholder="Descripción"
+														class="flex-1 rounded-lg border-slate-200 bg-[#F8FAFC] p-2 text-sm"
+													/>
+													{#if editData.features.length > 1}
+														<button
+															type="button"
+															onclick={() => removeFeature('edit', j)}
+															class="text-slate-300 hover:text-red-400"
+														>
+															<span class="material-icons text-sm">close</span>
+														</button>
+													{/if}
+												</div>
+											{/each}
 										</div>
 									{:else}
 										<div>
 											<div class="mb-2 flex items-center justify-between">
-												<label for="editProdCategories_{p.id}" class="text-xs font-bold text-slate-600">Categorías</label>
+												<label class="text-xs font-bold text-slate-600">Categorías</label>
 												<button
 													type="button"
 													onclick={() => addCategory('edit')}
 													class="text-xs font-bold text-primary hover:underline">+ Agregar</button
 												>
 											</div>
-											<div id="editProdCategories_{p.id}">
-												{#each editData.categories as cat, j (j)}
-													<div class="mb-2 flex items-center gap-2">
-														<input
-															type="text"
-															bind:value={cat.num}
-															class="w-12 rounded-lg border-slate-200 bg-soft-gray p-2 text-center text-sm font-bold"
-														/>
-														<input
-															type="text"
-															bind:value={cat.name}
-															placeholder="Nombre"
-															class="flex-1 rounded-lg border-slate-200 bg-soft-gray p-2 text-sm"
-														/>
-														<input
-															type="text"
-															bind:value={cat.desc}
-															placeholder="Descripción"
-															class="flex-1 rounded-lg border-slate-200 bg-soft-gray p-2 text-sm"
-														/>
-														{#if editData.categories.length > 1}
-															<button
-																type="button"
-																onclick={() => removeCategory('edit', j)}
-																class="text-slate-300 hover:text-red-400"
-															>
-																<span class="material-icons text-sm">close</span>
-															</button>
-														{/if}
-													</div>
-												{/each}
-											</div>
+											{#each editData.categories as cat, j}
+												<div class="mb-2 flex items-center gap-2">
+													<input
+														type="text"
+														bind:value={cat.num}
+														class="w-12 rounded-lg border-slate-200 bg-[#F8FAFC] p-2 text-center text-sm font-bold"
+													/>
+													<input
+														type="text"
+														bind:value={cat.name}
+														placeholder="Nombre"
+														class="flex-1 rounded-lg border-slate-200 bg-[#F8FAFC] p-2 text-sm"
+													/>
+													<input
+														type="text"
+														bind:value={cat.desc}
+														placeholder="Descripción"
+														class="flex-1 rounded-lg border-slate-200 bg-[#F8FAFC] p-2 text-sm"
+													/>
+													{#if editData.categories.length > 1}
+														<button
+															type="button"
+															onclick={() => removeCategory('edit', j)}
+															class="text-slate-300 hover:text-red-400"
+														>
+															<span class="material-icons text-sm">close</span>
+														</button>
+													{/if}
+												</div>
+											{/each}
 										</div>
 									{/if}
 

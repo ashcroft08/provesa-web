@@ -4,28 +4,15 @@
 	import NosotrosTeaser from '$lib/components/NosotrosTeaser.svelte';
 	import SugerenciasForm from '$lib/components/SugerenciasForm.svelte';
 	import RedesSociales from '$lib/components/RedesSociales.svelte';
-	import SEO from '$lib/components/SEO.svelte';
+	import Seo from '$lib/components/Seo.svelte';
 
 	/** @type {{ data: { slides: any[], products: any[], nosotros: any, sugOptions: string[], footer: any } }} */
 	let { data } = $props();
 </script>
 
-<SEO 
-	title="Distribuidor Mayorista de Abarrotes y Consumo Masivo"
-	description="Líderes en distribución mayorista en La Concordia. Ofrecemos el mejor surtido en abarrotes, productos de limpieza y consumo masivo con precios competitivos."
-	jsonLd={{
-		"@context": "https://schema.org",
-		"@type": "Organization",
-		"name": "PROVESA SCC",
-		"url": "https://provesa.com.ec",
-		"logo": "https://provesa.com.ec/logo.png",
-		"description": "Distribuidor mayorista líder en productos de consumo masivo en La Concordia, Ecuador.",
-		"address": {
-			"@type": "PostalAddress",
-			"addressLocality": "La Concordia",
-			"addressCountry": "EC"
-		}
-	}}
+<Seo 
+	title="Distribuidor Mayorista en La Concordia" 
+	description="PROVESA SCC es el aliado estratégico para su negocio en La Concordia. Distribución mayorista de arroz, abarrotes y productos de consumo masivo con más de 18 años de trayectoria."
 />
 
 <HeroSlider slides={data.slides} />

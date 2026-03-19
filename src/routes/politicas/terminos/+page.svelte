@@ -1,13 +1,12 @@
 <script>
 	import { base } from '$app/paths';
-	import SEO from '$lib/components/SEO.svelte';
+	import Seo from '$lib/components/Seo.svelte';
 	let { data } = $props();
 	let page = $derived(data.legalPage);
 </script>
-
-<SEO 
-	title={page?.title || 'Términos y Condiciones'}
-	description="Revisa los términos y condiciones de uso de nuestro sitio web y servicios en PROVESA SCC."
+<Seo 
+	title={page?.title || 'Términos y Condiciones'} 
+	description="Revise los términos y condiciones de uso del sitio web de PROVESA SCC. Información legal clara para nuestros socios y usuarios."
 />
 
 <div class="min-h-screen bg-background">

@@ -9,11 +9,7 @@ export const nosotrosRepository = {
         return config || null;
     },
 
-    /** 
-     * Crea o actualiza la configuración del teaser resumido de "Nosotros".
-     * @param {any} data - Objeto con título y descripción breve.
-     * @returns {Promise<void>}
-     */
+    /** Crea o actualiza la configuración del teaser */
     async upsertConfig(data) {
         const [existing] = await db.select().from(nosotrosConfig).limit(1);
 
@@ -27,20 +23,13 @@ export const nosotrosRepository = {
         }
     },
 
-    /** 
-     * Obtiene el contenido completo de la página de "Nosotros" (historia, misión, visión).
-     * @returns {Promise<Object|null>}
-     */
+    /** Obtiene el contenido de la página /nosotros (singleton) */
     async getPage() {
         const [page] = await db.select().from(nosotrosPage).limit(1);
         return page || null;
     },
 
-    /** 
-     * Actualiza el contenido detallado de la página editorial de "Nosotros".
-     * @param {any} data - Contenido estructurado de la página.
-     * @returns {Promise<void>}
-     */
+    /** Crea o actualiza el contenido de la página /nosotros */
     async upsertPage(data) {
         const [existing] = await db.select().from(nosotrosPage).limit(1);
 

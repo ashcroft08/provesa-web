@@ -44,6 +44,7 @@
 	let currentIndex = $state(0);
 	let isTransitioning = $state(false);
 
+	/** @param {number} index */
 	function goToSlide(index) {
 		if (index === currentIndex || isTransitioning) return;
 		isTransitioning = true;
@@ -65,9 +66,9 @@
 	id="inicio"
 	class="hero-slider relative h-screen max-h-[900px] min-h-[600px] overflow-hidden"
 >
-	{#each slides as sl, i}
+	{#each slides as sl, i (i)}
 		<div
-			class="absolute inset-0 transition-all duration-[1200ms] ease-in-out"
+			class="absolute inset-0 transition-all duration-1200 ease-in-out"
 			class:opacity-100={currentIndex === i}
 			class:opacity-0={currentIndex !== i}
 			class:scale-100={currentIndex === i}
@@ -77,14 +78,14 @@
 			<!-- Imagen con ken burns suave -->
 			<img
 				src={sl.imageUrl}
-				alt={sl.title || `Slide ${i + 1}`}
+				alt={sl.title + (sl.highlight ? ' ' + sl.highlight : '') || `PROVESA SCC - Distribución Mayorista`}
 				class="h-full w-full object-cover {currentIndex === i ? 'animate-ken-burns' : ''}"
 			/>
 
 			<!-- Overlay con gradiente más rico -->
-			<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10"></div>
+			<div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-black/10"></div>
 			<div
-				class="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30"
+				class="absolute inset-0 bg-linear-to-r from-black/30 via-transparent to-black/30"
 			></div>
 
 			<!-- Contenido -->
@@ -112,15 +113,27 @@
 						{/if}
 
 						<!-- Título -->
-						<h2
-							class="slide-title mb-4 text-4xl leading-[1.08] font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
+						{#if i === 0}
+							<h1
+								class="slide-title mb-4 text-4xl leading-[1.08] font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
 							class:slide-in-up={currentIndex === i}
 						>
-							{sl.title}{#if sl.highlight}{' '}<span
-									class="{sl.highlightColor || 'text-accent-yellow'} drop-shadow-lg"
-									>{sl.highlight}</span
-								>{/if}
-						</h2>
+								{sl.title} {#if sl.highlight}<span
+										class="{sl.highlightColor || 'text-accent-yellow'} drop-shadow-lg"
+										>{sl.highlight}</span
+									>{/if}
+							</h1>
+						{:else}
+							<h2
+								class="slide-title mb-4 text-4xl leading-[1.08] font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
+								class:slide-in-up={currentIndex === i}
+							>
+								{sl.title} {#if sl.highlight}<span
+										class="{sl.highlightColor || 'text-accent-yellow'} drop-shadow-lg"
+										>{sl.highlight}</span
+									>{/if}
+							</h2>
+						{/if}
 
 						<!-- Descripción -->
 						{#if sl.description}
@@ -142,7 +155,8 @@
 	<!-- Navigation Dots mejorados -->
 	{#if slides.length > 1}
 		<div class="absolute bottom-8 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2">
-			{#each slides as _, i}
+			<!-- eslint-disable-next-line no-unused-vars -->
+			{#each slides as _, i (i)}
 				<button
 					onclick={() => goToSlide(i)}
 					class="group relative h-2 rounded-full transition-all duration-500 {currentIndex === i
@@ -176,7 +190,7 @@
 
 	<!-- Gradiente inferior para transición suave al contenido -->
 	<div
-		class="absolute right-0 bottom-0 left-0 z-20 h-24 bg-gradient-to-t from-background to-transparent"
+		class="absolute right-0 bottom-0 left-0 z-20 h-24 bg-linear-to-t from-background to-transparent"
 	></div>
 </section>
 

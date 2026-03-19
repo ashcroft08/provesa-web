@@ -74,10 +74,10 @@
 <section id="productos" class="relative overflow-hidden bg-white py-28 md:py-36">
 	<!-- Decoración sutil de fondo -->
 	<div
-		class="pointer-events-none absolute -top-40 -right-40 h-96 w-96 rounded-full bg-primary/[0.03] blur-3xl"
+		class="pointer-events-none absolute -top-40 -right-40 h-96 w-96 rounded-full bg-primary/3 blur-3xl"
 	></div>
 	<div
-		class="pointer-events-none absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-secondary/[0.05] blur-3xl"
+		class="pointer-events-none absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-secondary/5 blur-3xl"
 	></div>
 
 	<div class="mx-auto max-w-7xl px-6 lg:px-8">
@@ -101,28 +101,28 @@
 		</div>
 
 		<!-- Productos -->
-		{#each products as product, i}
+		{#each products as product, i (product.id || i)}
 			<div class="group mb-28 grid items-center gap-12 last:mb-0 md:grid-cols-2 lg:gap-20">
 				<!-- Imagen/Slider -->
 				<div class={product.align === 'right' ? 'order-1 md:order-2' : 'md:order-1'}>
 					<div class="relative">
 						<!-- Fondo decorativo rotado -->
 						<div
-							class="absolute -inset-3 rounded-[2rem] transition-transform duration-700 group-hover:rotate-0
+							class="absolute -inset-3 rounded-4xl transition-transform duration-700 group-hover:rotate-0
 							{product.align === 'left'
-								? '-rotate-2 bg-gradient-to-br from-primary/10 to-primary/5'
-								: 'rotate-2 bg-gradient-to-br from-secondary/15 to-accent/5'}"
+								? '-rotate-2 bg-linear-to-br from-primary/10 to-primary/5'
+								: 'rotate-2 bg-linear-to-br from-secondary/15 to-accent/5'}"
 						></div>
 
 						<!-- Contenedor del slider -->
 						<div
-							class="relative aspect-[3/4] overflow-hidden rounded-3xl shadow-2xl ring-1 shadow-slate-200/80 ring-black/5 transition-transform duration-500 group-hover:scale-[1.01] sm:aspect-square lg:aspect-[4/3]"
+							class="relative aspect-3/4 overflow-hidden rounded-3xl shadow-2xl ring-1 shadow-slate-200/80 ring-black/5 transition-transform duration-500 group-hover:scale-[1.01] sm:aspect-square lg:aspect-4/3"
 						>
-							{#each product.images as img, j}
+							{#each product.images as img, j (j)}
 								<img
 									src={img}
-									alt="{product.name} {j + 1}"
-									class="absolute inset-0 h-full w-full object-cover transition-all duration-[1200ms] ease-in-out"
+									alt="{product.name} - Imagen descriptiva {j + 1}"
+									class="absolute inset-0 h-full w-full object-cover transition-all duration-1200 ease-in-out"
 									class:opacity-100={imageIndexes[i] === j}
 									class:opacity-0={imageIndexes[i] !== j}
 									class:scale-100={imageIndexes[i] === j}
@@ -132,12 +132,13 @@
 
 							<!-- Overlay inferior sutil para los dots -->
 							<div
-								class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/30 to-transparent"
+								class="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/30 to-transparent"
 							></div>
 
 							<!-- Dots del slider -->
 							<div class="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2">
-								{#each product.images as _, j}
+								<!-- eslint-disable-next-line no-unused-vars -->
+								{#each product.images as _, j (j)}
 									<button
 										onclick={() => (imageIndexes[i] = j)}
 										class="rounded-full transition-all duration-300
@@ -183,7 +184,7 @@
 					<!-- Features -->
 					{#if product.displayType === 'features' && product.features?.length}
 						<div class="space-y-5">
-							{#each product.features as feature, fi}
+							{#each product.features as feature, fi (fi)}
 								<div
 									class="flex items-start gap-4 rounded-2xl border border-transparent p-3 transition-all hover:border-slate-100 hover:bg-slate-50/50"
 								>
@@ -204,7 +205,7 @@
 					<!-- Categorías -->
 					{#if product.displayType === 'categories' && product.categories?.length}
 						<div class="grid grid-cols-2 gap-5">
-							{#each product.categories as cat}
+							{#each product.categories as cat, ci (ci)}
 								<div
 									class="group/cat rounded-2xl border border-slate-100 bg-slate-50/50 p-4 transition-all hover:border-accent/20 hover:bg-accent/5 hover:shadow-sm"
 								>

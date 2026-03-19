@@ -8,20 +8,12 @@ export const postulacionesRepository = {
         return await db.select().from(postulaciones).orderBy(desc(postulaciones.createdAt));
     },
 
-    /** 
-     * Registra una nueva aplicación de empleo enviada por un candidato.
-     * @param {any} data - Datos de la postulación y enlace al CV.
-     * @returns {Promise<void>}
-     */
+    /** Crea una nueva postulación */
     async create(data) {
         await db.insert(postulaciones).values(data);
     },
 
-    /** 
-     * Elimina definitivamente una postulación por su ID único.
-     * @param {string|number} id - ID de la postulación.
-     * @returns {Promise<void>}
-     */
+    /** Elimina una postulación por ID */
     async remove(id) {
         await db.delete(postulaciones).where(eq(postulaciones.id, String(id)));
     }
