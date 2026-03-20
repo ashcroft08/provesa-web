@@ -51,21 +51,20 @@
 					}
 				},
 				{
-					element: '#dashboard-kpis',
+					element: '#kpi-visitas',
 					popover: {
 						title: '📈 Métricas en Tiempo Real',
 						description:
 							'Monitorea el pulso de tu web: visitas totales, stock de productos y solicitudes pendientes.',
 						side: 'bottom',
-						align: 'center',
-						offset: 30 // Aumentar espacio para asegurar que quede abajo
+						align: 'center'
 					},
 					onHighlightStarted: () => {
 						activeTab = 'Dashboard';
 						// Delay para permitir que Svelte renderice los componentes del Dashboard
 						setTimeout(() => {
 							driverObj.refresh();
-						}, 300);
+						}, 500);
 					}
 				},
 				{
@@ -119,19 +118,19 @@
 					}
 				},
 				{
-					element: '#recent-activity',
+					element: '#first-activity-item',
 					popover: {
 						title: '🔔 Actividad Reciente',
 						description:
 							'Un vistazo rápido a los últimos mensajes de clientes y postulaciones de empleo recibidas.',
-						side: 'top',
+						side: 'bottom',
 						align: 'center'
 					},
 					onHighlightStarted: () => {
 						activeTab = 'Dashboard';
 						setTimeout(() => {
 							driverObj.refresh();
-						}, 300);
+						}, 400);
 					}
 				},
 				{

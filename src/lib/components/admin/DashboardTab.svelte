@@ -64,6 +64,7 @@
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4" id="dashboard-kpis">
 		<!-- Visitas -->
 		<div
+			id="kpi-visitas"
 			class="stat-card flex items-center gap-5 rounded-[32px] border border-slate-100 bg-white p-6 shadow-sm"
 		>
 			<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50">
@@ -129,8 +130,9 @@
 
 				<div class="space-y-4">
 					{#if recentActivity.length > 0}
-						{#each recentActivity as activity (activity.id)}
+						{#each recentActivity as activity, index (activity.id)}
 							<button
+								id={index === 0 ? 'first-activity-item' : undefined}
 								onclick={() => navigateTo(activity.tab)}
 								class="flex w-full items-center gap-4 rounded-3xl border border-slate-50 bg-slate-50/50 p-4 text-left transition-all hover:border-primary/20 hover:bg-white hover:shadow-md"
 							>
