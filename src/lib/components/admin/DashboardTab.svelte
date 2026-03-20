@@ -1,11 +1,11 @@
 <script>
-	import { fade, slide } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 
 	let { data = {}, activeTab = $bindable() } = $props();
 
 	// Cálculos dinámicos
 	let totalProducts = $derived(data.products?.length || 0);
-	let unreadSugerencias = $derived(data.sugerencias?.filter((s) => !s.leido).length || 0);
+	let unreadSugerencias = $derived(data.sugerencias?.filter((/** @type {any} */ s) => !s.leido).length || 0);
 	let totalPostulaciones = $derived(data.postulaciones?.length || 0);
 	let totalVisitas = $derived(data.analytics?.totalViews || 0);
 	let topPages = $derived(data.analytics?.byPage || []);
@@ -13,7 +13,7 @@
 	// Combinar actividad reciente (sugerencias y postulaciones)
 	let recentActivity = $derived(
 		[
-			...(data.sugerencias || []).map((s) => ({
+			...(data.sugerencias || []).map((/** @type {any} */ s) => ({
 				id: s.id,
 				type: 'Sugerencia',
 				title: `Nueva sugerencia de ${s.nombre || 'Anónimo'}`,
@@ -23,7 +23,7 @@
 				bgColor: 'bg-green-50',
 				tab: 'Sugerencias'
 			})),
-			...(data.postulaciones || []).map((p) => ({
+			...(data.postulaciones || []).map((/** @type {any} */ p) => ({
 				id: p.id,
 				type: 'Candidato',
 				title: `Nueva postulación: ${p.nombre}`,
@@ -48,7 +48,7 @@
 	/** @param {Date} date */
 	function formatRelative(date) {
 		const now = new Date();
-		const diffMs = now - date;
+		const diffMs = now.getTime() - date.getTime();
 		const diffMins = Math.floor(diffMs / 60000);
 		const diffHours = Math.floor(diffMins / 60);
 		const diffDays = Math.floor(diffHours / 24);
@@ -61,7 +61,7 @@
 
 <div in:fade={{ duration: 200 }} class="space-y-10">
 	<!-- KPIs Real-time -->
-	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4" id="dashboard-kpis">
 		<!-- Visitas -->
 		<div
 			class="stat-card flex items-center gap-5 rounded-[32px] border border-slate-100 bg-white p-6 shadow-sm"
@@ -120,7 +120,7 @@
 
 	<div class="grid gap-8 lg:grid-cols-3">
 		<!-- Actividad Reciente -->
-		<div class="lg:col-span-2 space-y-8">
+		<div class="lg:col-span-2 space-y-8" id="recent-activity">
 			<div class="rounded-[40px] border border-slate-100 bg-white p-8 shadow-sm">
 				<div class="mb-6 flex items-center justify-between">
 					<h4 class="text-xl font-black text-slate-900">Actividad Reciente</h4>
@@ -169,7 +169,7 @@
 				<h4 class="mb-6 text-xl font-black text-slate-900">Movimientos de mi página</h4>
 				<div class="grid gap-4">
 					{#if topPages.length > 0}
-						{#each topPages as page}
+						{#each topPages as page (page.path)}
 							<div class="flex items-center justify-between rounded-2xl bg-slate-50 p-4">
 								<div class="flex items-center gap-3">
 									<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-white shadow-sm">
@@ -193,7 +193,7 @@
 		</div>
 
 		<!-- Accesos Rápidos -->
-		<div class="space-y-6">
+		<div class="space-y-6" id="quick-access">
 			<div
 				class="relative overflow-hidden rounded-[40px] border border-slate-100 bg-white p-8 shadow-sm"
 			>

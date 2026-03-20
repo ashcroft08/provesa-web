@@ -19,7 +19,7 @@
 <aside class="glass-sidebar fixed inset-y-0 left-0 z-50 hidden w-72 lg:block">
 	<div class="flex h-full flex-col">
 		<!-- Logo -->
-		<div class="shrink-0 px-8 py-4">
+		<div class="shrink-0 px-8 py-4" id="admin-logo">
 			<img src={logo} alt="Provesa" class="mx-auto h-10 w-auto object-contain" />
 		</div>
 
@@ -27,6 +27,7 @@
 		<nav class="sidebar-scroll flex-1 space-y-0.5 overflow-y-auto px-6 py-1">
 			{#each navItems as item (item.name)}
 				<button
+					id="nav-{item.name.toLowerCase().replace(/á/g, 'a').replace(/ó/g, 'o').replace(/ /g, '-')}"
 					onclick={() => (activeTab = item.name)}
 					class="flex w-full items-center gap-4 rounded-xl px-4 py-2 text-sm font-bold transition-all
 					{activeTab === item.name ? 'active-nav' : 'text-slate-500 hover:bg-slate-50 hover:text-primary'}"
@@ -43,7 +44,7 @@
 		</nav>
 
 		<!-- User profile (always visible at bottom) -->
-		<div class="shrink-0 border-t border-slate-100 px-6 py-4">
+		<div class="shrink-0 border-t border-slate-100 px-6 py-4" id="user-profile">
 			<div class="flex items-center gap-3 rounded-2xl bg-slate-50 p-3">
 				<div
 					class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary font-bold text-white uppercase"
