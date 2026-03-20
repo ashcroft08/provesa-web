@@ -1,6 +1,6 @@
 <script>
 	import { Target, Eye, BookOpen } from 'lucide-svelte';
-	import Seo from '$lib/components/Seo.svelte';
+	import SEO from '$lib/components/SEO.svelte';
 	let { data } = $props();
 
 	// Defaults que coinciden con lo que están en el schema
@@ -70,7 +70,7 @@
 	);
 </script>
 
-<Seo 
+<SEO 
 	title="Nuestra Historia y Valores" 
 	description="Conozca PROVESA SCC: más de 18 años siendo el motor del comercio local en La Concordia. Nuestra misión, visión y el compromiso que nos define como líderes en distribución mayorista."
 />

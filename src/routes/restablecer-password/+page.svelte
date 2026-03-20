@@ -3,9 +3,9 @@
 	import logo from '$lib/assets/images/provesa-logo.png';
 	import { ArrowLeft, Lock, Save, CheckCircle, Eye, EyeOff } from 'lucide-svelte';
 	import { base } from '$app/paths';
-	import Seo from '$lib/components/Seo.svelte';
+	import SEO from '$lib/components/SEO.svelte';
 
-	let { form } = $props();
+	let { form } = $props();		
 	let password = $state('');
 	let confirmPassword = $state('');
 	let loading = $state(false);
@@ -46,7 +46,7 @@
 	let isAllValid = $derived(hasMinLength && hasUppercase && hasNumber && hasSpecial);
 </script>
 
-<Seo title="Nueva Contraseña" noindex={true} />
+<SEO title="Nueva Contraseña" noindex={true} />
 
 <div
 	class="bg-mesh relative flex h-screen w-full items-center justify-center overflow-hidden p-4 antialiased sm:p-6"

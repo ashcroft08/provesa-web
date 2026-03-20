@@ -10,7 +10,7 @@
 		MapPin
 	} from 'lucide-svelte';
 	import { base } from '$app/paths';
-	import Seo from '$lib/components/Seo.svelte';
+	import SEO from '$lib/components/SEO.svelte';
 
 	let { data, form } = $props();
 	let isSubmitting = $state(false);
@@ -23,7 +23,7 @@
 	}
 </script>
 
-<Seo 
+<SEO 
 	title="Trabaja con Nosotros" 
 	description="Únase al equipo de PROVESA SCC. Buscamos talento para nuestras distintas sucursales. Déjenos su hoja de vida y forme parte de la distribuidora mayorista líder."
 />

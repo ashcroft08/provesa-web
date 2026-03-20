@@ -3,7 +3,7 @@
 	import logo from '$lib/assets/images/provesa-logo.png';
 	import { ArrowLeft, Mail, Lock, LogIn } from 'lucide-svelte';
 	import { base } from '$app/paths';
-	import Seo from '$lib/components/Seo.svelte';
+	import SEO from '$lib/components/SEO.svelte';
 
 	let { form } = $props();
 	let email = $state('');
@@ -23,7 +23,7 @@
 	});
 </script>
 
-<Seo title="Acceso Administrativo" noindex={true} />
+<SEO title="Acceso Administrativo" noindex={true} />
 
 <div
 	class="bg-mesh relative flex min-h-screen w-full items-center justify-center overflow-hidden p-4 antialiased sm:p-6"

@@ -3,7 +3,7 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import Navbar from '$lib/components/Navbar.svelte';
 	import Footer from '$lib/components/Footer.svelte';
-	import Seo from '$lib/components/Seo.svelte';
+	import SEO from '$lib/components/SEO.svelte';
 	import { page } from '$app/state';
 
 	let { data, children } = $props();
@@ -22,7 +22,7 @@
 	<Navbar transparent={isHome} logoUrl={data?.siteConfig?.logoUrl} />
 {/if}
 
-<Seo />
+<SEO />
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 {@render children()}
 

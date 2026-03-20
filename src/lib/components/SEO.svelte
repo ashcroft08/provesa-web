@@ -1,11 +1,13 @@
 <script>
 	/** @type {{ 
-	 * title?: string, 
-	 * description?: string, 
-	 * ogImage?: string, 
-	 * ogType?: 'website' | 'article',
-	 * canonicalUrl?: string,
-	 * siteName?: string
+	 *   title?: string, 
+	 *   description?: string, 
+	 *   ogImage?: string, 
+	 *   ogType?: 'website' | 'article',
+	 *   canonicalUrl?: string,
+	 *   siteName?: string,
+	 *   jsonLd?: any,
+	 *   noindex?: boolean
 	 * }} */
 	let { 
 		title = '', 
@@ -13,7 +15,8 @@
 		ogImage = '/og-image.png', 
 		ogType = 'website',
 		canonicalUrl = '',
-		siteName = 'PROVESA SCC'
+		siteName = 'PROVESA SCC',
+		noindex = false
 	} = $props();
 
 	let fullTitle = $derived(title ? `${title} | ${siteName}` : siteName);
@@ -43,6 +46,6 @@
 	<meta property="twitter:image" content={ogImage} />
 
 	<!-- Additional SEO -->
-	<meta name="robots" content="index, follow" />
+	<meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow"} />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 </svelte:head>

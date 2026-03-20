@@ -1,10 +1,10 @@
 <script>
 	import { base } from '$app/paths';
-	import Seo from '$lib/components/Seo.svelte';
+	import SEO from '$lib/components/SEO.svelte';
 	let { data } = $props();
 	let page = $derived(data.legalPage);
 </script>
-<Seo 
+<SEO 
 	title={page?.title || 'Política de Privacidad'} 
 	description="Consulte nuestra política de privacidad para entender cómo PROVESA SCC protege y maneja sus datos personales con integridad y seriedad."
 />
